@@ -194,12 +194,12 @@
                                 "command": ["/entrypoint", "/usr/libexec/s2i/run"],
                                 "resources": {
                                     "limits": {
-                                        "cpu": "8",
-                                        "memory": "10Gi"
+                                        "cpu": "${CPU_LIMIT}",
+                                        "memory": "${MEMORY_LIMIT}"
                                     },
                                     "requests": {
-                                        "cpu": "6",
-                                        "memory": "8Gi"
+                                        "cpu": "${CPU_REQUESTS}",
+                                        "memory": "${MEMORY_REQUESTS}"
                                     }
                                 }
                             }
@@ -468,6 +468,30 @@
             "name": "TF_ENABLE_TEST",
             "description": "TF_ENABLE_TEST",
             "value": "0",
+            "required": true
+        },
+        {
+            "name": "CPU_LIMIT",
+            "description": "CPU_LIMIT",
+            "value": "8",
+            "required": true
+        },
+        {
+            "name": "MEMORY_LIMIT",
+            "description": "MEMORY_LIMIT",
+            "value": "8Gi",
+            "required": true
+        },
+        {
+            "name": "CPU_REQUESTS",
+            "description": "TF_ENABLE_TEST",
+            "value": "8",
+            "required": true
+        },
+        {
+            "name": "MEMORY_REQUESTS",
+            "description": "TF_ENABLE_TEST",
+            "value": "8Gi",
             "required": true
         }
     ]

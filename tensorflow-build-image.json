@@ -63,7 +63,7 @@
                     	"noCache": true,
                         "dockerfilePath": "${DOCKER_FILE_PATH}",
                         "from": {
-                            "kind": "DockerImage",
+                            "kind": "${S2I_IMAGE_KIND}",
                             "name": "${S2I_IMAGE}"
                         },
                         "env": [
@@ -115,6 +115,12 @@
             "name": "S2I_IMAGE",
             "description": "registry.fedoraproject.org/f27/s2i-core, registry.fedoraproject.org/f28/s2i-core, registry.access.redhat.com/rhscl/s2i-core-rhel7",
             "value": "registry.fedoraproject.org/f27/s2i-core",
+            "required": true
+        },
+        {
+            "name": "S2I_IMAGE_KIND",
+            "description": "DockerImage, ImageStreamTag",
+            "value": "DockerImage",
             "required": true
         },
         {

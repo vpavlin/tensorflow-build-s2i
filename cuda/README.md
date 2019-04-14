@@ -30,4 +30,4 @@ oc delete  all -l appTypes=cuda-build-chain
 oc delete  all -l appName=${CUDA_VERSION}-cuda-chain-rhel7
 
 ```
-Credits: the matrixmul code is used from https://blog.perfinion.com/2018/07/tensorflow-cpu-supports-instructions/
+
