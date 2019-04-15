@@ -175,21 +175,6 @@ echo "      clone git repo.....       	  "
 echo "####################################"
 #git clone --branch=r1.13 --depth=1 https://github.com/tensorflow/tensorflow.git .
 git clone --branch=$TF_GIT_BRANCH --depth=1 https://github.com/tensorflow/tensorflow.git .
-#echo "${TF_GIT_BRANCH//r}"
-#Python Configuration Error: Invalid python library path: /usr/lib64/python3.6/site-packages
-#/workspace/tensorflow/java/BUILD:73:1: no such package '@local_jdk//': Expected directory at /usr/lib/jvm/java-1.8.0-openjdk-1.8.0* but it does not exist. and referenced by
-# echo "####################################"
-# echo "      test.....       	      "
-# echo "####################################"
-# bazel test -c opt -- //tensorflow/...
-echo "####################################"
-echo "      configure.....       	      "
-echo "####################################"
-./configure
-
-
-
-
 ###########################
 ### TODO NO GPU support yet
 ###########################
@@ -208,6 +193,23 @@ if [ $TF_NEED_CUDA = "1" ]; then
 	#cd /workspace/serving/
 	#sed -i.bak 's/@org_tensorflow\/\/third_party\/gpus\/crosstool/@local_config_cuda\/\/crosstool:toolchain/g' tools/bazel.rc
 fi 
+
+#echo "${TF_GIT_BRANCH//r}"
+#Python Configuration Error: Invalid python library path: /usr/lib64/python3.6/site-packages
+#/workspace/tensorflow/java/BUILD:73:1: no such package '@local_jdk//': Expected directory at /usr/lib/jvm/java-1.8.0-openjdk-1.8.0* but it does not exist. and referenced by
+# echo "####################################"
+# echo "      test.....       	      "
+# echo "####################################"
+# bazel test -c opt -- //tensorflow/...
+echo "####################################"
+echo "      configure.....       	      "
+echo "####################################"
+./configure
+
+
+
+
+
 #--local_resources 4096,4.0,1.0 --verbose_failures
 #bazel build -c opt --config=cuda --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0" --verbose_failures //tensorflow/tools/pip_package:build_pip_package
 #bazel build -c opt --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0" --verbose_failures //tensorflow/tools/pip_package:build_pip_package

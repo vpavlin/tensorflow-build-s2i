@@ -36,7 +36,7 @@ ENV TINI_VERSION=v0.18.0
 
 ## Bazel
 ENV PYTHON_LIB_PATH=/usr/lib64/python$PYTHON_VERSION/site-packages
-ENV LD_LIBRARY_PATH="/usr/local/cuda/extras/CUPTI/lib64:/usr/local/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}";
+ENV LD_LIBRARY_PATH="/usr/local/cuda/extras/CUPTI/lib64:/usr/local/cuda/lib64/stubs:/usr/local/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}";
 ENV BAZELRC /root/.bazelrc
 ###ENV BAZEL_VERSION 0.15.0
 ################################################
@@ -51,6 +51,7 @@ ENV TF_NEED_HDFS 0
 ENV TF_ENABLE_XLA 0
 ENV TF_NEED_OPENCL 0
 ENV TF_NEED_CUDA 1
+ENV TF_CUDA_COMPUTE_CAPABILITIES=3.5,5.2,6.0,6.1,7.0
 ENV TF_NEED_MPI 0
 ENV TF_NEED_GDR 0
 ENV TF_NEED_S3 0
@@ -134,8 +135,7 @@ RUN echo 'PS1="\u@\h:\w\\$ \[$(tput sgr0)\]"' >> /root/.bashrc \
     && ls -l /usr/bin/python* \
     && echo "-----IMAGE_TEST--------" \
     && ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 \
-    && cp /usr/lib64/libcu* /usr/local/cuda/lib64/ \
-    && LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH}
+    && cp /usr/lib64/libcu* /usr/local/cuda/lib64/
 
 RUN  wget https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini -P /tmp \
     && wget https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini.asc -P /tmp \
