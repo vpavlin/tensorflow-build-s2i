@@ -173,7 +173,7 @@ cd /workspace
 echo "####################################"
 echo "      clone git repo.....       	  "
 echo "####################################"
-#git clone --branch=r1.10 --depth=1 https://github.com/tensorflow/tensorflow.git .
+#git clone --branch=r1.13 --depth=1 https://github.com/tensorflow/tensorflow.git .
 git clone --branch=$TF_GIT_BRANCH --depth=1 https://github.com/tensorflow/tensorflow.git .
 #echo "${TF_GIT_BRANCH//r}"
 #Python Configuration Error: Invalid python library path: /usr/lib64/python3.6/site-packages
@@ -198,6 +198,10 @@ if [ $TF_NEED_CUDA = "1" ]; then
 	echo "####################################"
 	echo "      CUDA BUILD TODO.....       	  "
 	echo "####################################"
+	export LD_LIBRARY_PATH=/usr/local/cuda/extras/CUPTI/lib64:/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH}
+	env_check LD_LIBRARY_PATH
+	ls -l /usr/local/cuda/
+	ls -l /usr/local/cuda/lib64/stubs/
 	#exit 1;
 	#cd /workspace/serving/tensorflow
 	#sed -i.bak 's/@org_tensorflow\/\/third_party\/gpus\/crosstool/@local_config_cuda\/\/crosstool:toolchain/g' tools/bazel.rc

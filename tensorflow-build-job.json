@@ -484,13 +484,13 @@
         },
         {
             "name": "CPU_REQUESTS",
-            "description": "TF_ENABLE_TEST",
+            "description": "CPU_REQUESTS",
             "value": "8",
             "required": true
         },
         {
             "name": "MEMORY_REQUESTS",
-            "description": "TF_ENABLE_TEST",
+            "description": "MEMORY_REQUESTS",
             "value": "8Gi",
             "required": true
         }
