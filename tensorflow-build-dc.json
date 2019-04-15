@@ -223,12 +223,12 @@
                                 ],
                                "resources": {
                                     "limits": {
-                                        "cpu": "6",
-                                        "memory": "8Gi"
+                                        "cpu": "${CPU_LIMIT}",
+                                        "memory": "${MEMORY_LIMIT}"
                                     },
                                     "requests": {
-                                        "cpu": "6",
-                                        "memory": "8Gi"
+                                        "cpu": "${CPU_REQUESTS}",
+                                        "memory": "${MEMORY_REQUESTS}"
                                     }
                                 }
                             }
@@ -530,6 +530,30 @@
             "name": "GIT_RELEASE_REPO",
             "description": "GIT_RELEASE_REPO",
             "value": "https://github.com/AICoE/tensorflow-wheels.git",
+            "required": true
+        },
+                {
+            "name": "CPU_LIMIT",
+            "description": "CPU_LIMIT",
+            "value": "8",
+            "required": true
+        },
+        {
+            "name": "MEMORY_LIMIT",
+            "description": "MEMORY_LIMIT",
+            "value": "8Gi",
+            "required": true
+        },
+        {
+            "name": "CPU_REQUESTS",
+            "description": "CPU_REQUESTS",
+            "value": "8",
+            "required": true
+        },
+        {
+            "name": "MEMORY_REQUESTS",
+            "description": "MEMORY_REQUESTS",
+            "value": "8Gi",
             "required": true
         }
     ]
