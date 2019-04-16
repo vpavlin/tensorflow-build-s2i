@@ -2,10 +2,10 @@
 	"kind": "Template",
 	"apiVersion": "v1",
 	"metadata": {
-		"name": "build-deploy-loop",
+		"name": "cuda-tf-runtime",
 		"annotations": {
 			"description": "Template to build simple build images.",
-			"tags": "build-deploy-loop"
+			"tags": "cuda-tf-runtime"
 		}
 	},
 	"objects": [{
@@ -14,7 +14,7 @@
 			"metadata": {
 				"name": "${APPLICATION_NAME}",
 				"labels": {
-					"appTypes": "build-deploy-loop",
+					"appTypes": "cuda-tf-runtime",
 					"appName": "${APPLICATION_NAME}"
 				}
 			},
@@ -30,7 +30,7 @@
 			"metadata": {
 				"name": "${APPLICATION_NAME}",
 				"labels": {
-					"appTypes": "build-deploy-loop",
+					"appTypes": "cuda-tf-runtime",
 					"appName": "${APPLICATION_NAME}"
 				}
 			},
@@ -116,7 +116,7 @@
 			"metadata": {
 				"name": "${APPLICATION_NAME}",
 				"labels": {
-					"appTypes": "build-deploy-loop",
+					"appTypes": "cuda-tf-runtime",
 					"appName": "${APPLICATION_NAME}"
 				}
 			},
@@ -178,7 +178,7 @@
 	"parameters": [{
 			"name": "APPLICATION_NAME",
 			"description": "The name of the application.",
-			"value": "build-deploy-loop",
+			"value": "cuda-tf-runtime",
 			"from": "[a-zA-Z0-9]{10}",
 			"required": true
 		},

@@ -31,9 +31,6 @@ The templates and Dockerfiles available here provide a flexible approach to crea
 The wheel files created from these templates are available at [AICoE/tensorflow-wheels](https://github.com/AICoE/tensorflow-wheels/releases).
 And the instructions to use with pipfile are given here [AICoE's TensorFlow Artifacts](https://index-aicoe.a3c1.starter-us-west-1.openshiftapps.com/).
 
-##### For GPU: TODO
-GPU is not yet supported.
-
 
 ## Bazel build options
 * `TF_NEED_JEMALLOC`: = 1
@@ -156,3 +153,30 @@ oc new-app --template=tensorflow-build-dc  \
 NOTE: `BUILDER_IMAGESTREAM = APPLICATION_NAME:BUILD_VERSION` from step 2. 
 
 See [Usage example](https://github.com/thoth-station/tensorflow-build-s2i/blob/master/Developing.md)
+
+
+##### For GPU: 
+Build the cuda images using cuda-build-chain Template.
+```
+oc new-app --template=tensorflow-build-image  \
+--param=APPLICATION_NAME=tf-rhel7gpu-build-image-${PYTHON_VERSION//.} \
+--param=S2I_IMAGE=cuda:10.0-cudnn7-devel-rhel7  \
+--param=S2I_IMAGE_KIND=ImageStreamTag  \
+--param=DOCKER_FILE_PATH=Dockerfile.rhel7gpu \
+--param=PYTHON_VERSION=$PYTHON_VERSION \
+--param=BUILD_VERSION=1 \
+--param=BAZEL_VERSION=0.21.0
+```
+```
+oc new-app --template=tensorflow-build-job  \
+--param=APPLICATION_NAME=tf-rhel7gpu-build-job-${PYTHON_VERSION//.}-1 --param=BUILDER_IMAGESTREAM=tf-rhel7gpu-build-image-${PYTHON_VERSION//.}:1  \
+--param=BAZEL_VERSION=0.21.0 \
+--param=TF_GIT_BRANCH=r1.13 \
+--param=TF_NEED_CUDA=1  \
+--param=TF_CUDA_VERSION=10.0 \
+--param=PYTHON_VERSION=$PYTHON_VERSION   \
+--param=GIT_TOKEN=$GIT_TOKEN \
+--param=CPU_LIMIT=32  --param=CPU_REQUESTS=32  --param=MEMORY_LIMIT=70Gi --param=MEMORY_REQUESTS=70Gi \
+--param=CUSTOM_BUILD="bazel build -c opt --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.2 --config=cuda --config=nonccl --cxxopt='-D_GLIBCXX_USE_CXX11_ABI=0' --action_env=LD_LIBRARY_PATH=${LD_LIBRARY_PATH} --verbose_failures //tensorflow/tools/pip_package:build_pip_package"  
+```
+

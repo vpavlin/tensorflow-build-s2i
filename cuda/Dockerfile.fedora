@@ -29,6 +29,7 @@ ENV JAVA_HOME=/usr/lib/jvm/java-1.8.0
 ENV PATH=/home/default/.local/bin:/opt/app-root/src/.local/bin/:$PATH
 
 COPY ./loop.sh /utils/
+RUN chmod +x /utils/loop.sh
 ## sourcestrategy doesn't work because git clone doesnt work here
 
 RUN if [ "$PYTHON_VERSION" = "2.7" ] ; then yum install -y python27 python-devel && rm -fr /usr/bin/python && ln -s /usr/bin/python2.7 /usr/bin/python ; fi \

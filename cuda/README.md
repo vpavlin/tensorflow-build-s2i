@@ -8,6 +8,7 @@ CUDA_VERSION=9.0
 #### Create the templates.
 ```
 oc create -f cuda-build-chain.json
+oc create -f cuda-tf-runtime.json
 ```
 
 #### Create all the cuda images.
@@ -23,6 +24,17 @@ oc new-app --template=cuda-build-chain  \
 --param=APPLICATION_NAME_4=${CUDA_VERSION}-devel-rhel7  \
 --param=APPLICATION_NAME_5=${CUDA_VERSION}-cudnn7-devel-rhel7 
 ```
+
+```
+
+oc new-app --template=cuda-tf-runtime  \
+--param=S2I_IMAGE=cuda:10.0-cudnn7-devel-rhel7  \
+--param=DOCKER_FILE_PATH=Dockerfile.centos7 \
+--param=PYTHON_VERSION=2.7 \
+--param=TF_PACKAGE=
+
+```
+get `TF_PACKAGE` values from [AICoE/tensorflow-wheels](https://github.com/AICoE/tensorflow-wheels/releases).
 
 #### To delete all resources
 ```
