@@ -82,6 +82,10 @@
 								"value": "${CUSTOM_BUILD}"
 							},
 							{
+								"name": "PYTHON_VERSION",
+								"value": "${PYTHON_VERSION}"
+							},
+							{
 								"name": "TF_PACKAGE",
 								"value": "${TF_PACKAGE}"
 							}
@@ -110,7 +114,11 @@
 			"apiVersion": "v1",
 			"kind": "Pod",
 			"metadata": {
-				"name": "${APPLICATION_NAME}"
+				"name": "${APPLICATION_NAME}",
+				"labels": {
+					"appTypes": "build-deploy-loop",
+					"appName": "${APPLICATION_NAME}"
+				}
 			},
 			"spec": {
 				"restartPolicy": "OnFailure",
@@ -245,6 +253,12 @@
 			"name": "CUSTOM_BUILD",
 			"description": "CUSTOM_BUILD",
 			"value": "cd /tmp/bazel && ./compile ",
+			"required": true
+		},
+		{
+			"name": "PYTHON_VERSION",
+			"description": "PYTHON_VERSION",
+			"value": "",
 			"required": true
 		},
 		{
