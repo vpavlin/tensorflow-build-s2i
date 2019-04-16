@@ -28,7 +28,7 @@ oc new-app --template=cuda-build-chain  \
 ```
 
 oc new-app --template=cuda-tf-runtime  \
---param=S2I_IMAGE=cuda:10.0-cudnn7-devel-rhel7  \
+--param=S2I_BASE_IMAGE=cuda:10.0-cudnn7-devel-rhel7  \
 --param=DOCKER_FILE_PATH=Dockerfile.centos7 \
 --param=PYTHON_VERSION=2.7 \
 --param=TF_PACKAGE=
