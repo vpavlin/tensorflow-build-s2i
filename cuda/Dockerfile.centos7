@@ -35,7 +35,9 @@ RUN chmod +x /utils/loop.sh
 
 ## sourcestrategy doesn't work because git clone doesnt work here
 
-RUN yum install -y yum-utils \
+RUN yum install -y yum-utils tar tree git curl wget \
+    && yum install -y vim gcc gcc-c++ glibc-devel openssl-devel perf \
+    && yum install -y which findutils x86info cpuid dmidecode procps \
     && prepare-yum-repositories rhel-server-rhscl-7-rpms \
     && if [ "$PYTHON_VERSION" = "2.7" ] ; then yum install -y tkinter scl-utils python27 python-devel python27-python-devel && scl enable python27 bash ; fi \
     && if [[ $PYTHON_VERSION == 3.* ]] ; then yum install -y scl-utils rh-python${PYTHON_VERSION//.} rh-python${PYTHON_VERSION//.}-python-pip rh-python${PYTHON_VERSION//.}-scldevel && scl enable rh-python${PYTHON_VERSION//.} bash  ; fi \

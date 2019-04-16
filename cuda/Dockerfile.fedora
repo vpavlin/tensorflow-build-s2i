@@ -32,7 +32,10 @@ COPY ./loop.sh /utils/
 RUN chmod +x /utils/loop.sh
 ## sourcestrategy doesn't work because git clone doesnt work here
 
-RUN if [ "$PYTHON_VERSION" = "2.7" ] ; then yum install -y python27 python-devel && rm -fr /usr/bin/python && ln -s /usr/bin/python2.7 /usr/bin/python ; fi \
+RUN dnf install -y tar tree which git curl wget \
+	&& dnf install -y vim gcc gcc-c++ glibc-devel openssl-devel gpg perf \
+    && dnf install -y findutils x86info cpuid dmidecode procps \
+	&& if [ "$PYTHON_VERSION" = "2.7" ] ; then yum install -y python27 python-devel && rm -fr /usr/bin/python && ln -s /usr/bin/python2.7 /usr/bin/python ; fi \
     && if [[ $PYTHON_VERSION == 3.* ]] ; then yum install -y python${PYTHON_VERSION//.} python3-devel python3-setuptools python3-pip python3-virtualenv && rm -fr /usr/bin/python && ln -s /usr/bin/python${PYTHON_VERSION} /usr/bin/python; fi \
 	&& curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py" \
     && if [ "$PYTHON_VERSION" = "2.7" ] ; then python$PYTHON_VERSION get-pip.py ; fi \
