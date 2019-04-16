@@ -80,6 +80,10 @@
 							{
 								"name": "CUSTOM_BUILD",
 								"value": "${CUSTOM_BUILD}"
+							},
+							{
+								"name": "TF_PACKAGE",
+								"value": "${TF_PACKAGE}"
 							}
 						]
 					}
@@ -241,6 +245,12 @@
 			"name": "CUSTOM_BUILD",
 			"description": "CUSTOM_BUILD",
 			"value": "cd /tmp/bazel && ./compile ",
+			"required": true
+		},
+		{
+			"name": "TF_PACKAGE",
+			"description": "TF_PACKAGE",
+			"value": "",
 			"required": true
 		}
 	]
