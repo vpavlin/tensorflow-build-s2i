@@ -1,0 +1,52 @@
+FROM fedora:29
+
+MAINTAINER Subin Modeel <smodeel@redhat.com>
+
+USER root
+
+## LIBRARY_VERSION comes from template
+ENV BAZEL_VERSION=$LIBRARY_VERSION
+ARG PYTHON_VERSION=3.6
+ARG TF_PACKAGE=https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-1.7.0-cp36-cp36m-linux_x86_64.whl
+ENV PYTHON_VERSION=$PYTHON_VERSION
+ENV TF_PACKAGE $TF_PACKAGE
+ENV TEST_CMD="import tensorflow as tf ; a = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[2, 3], name='a') ; \
+b = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[3, 2], name='b') ; c = tf.matmul(a, b) ; \
+sess = tf.Session(config=tf.ConfigProto(log_device_placement=True)) ;print(sess.run(c))"
+
+# Not essential, but wise to set the lang
+# Note: Users with other languages should set this in their derivative image
+ENV LANGUAGE en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LC_ALL=""
+ENV PYTHONIOENCODING UTF-8
+ENV NB_USER=default
+ENV NB_UID=1001
+ENV PYTHON_BIN_PATH=/usr/bin/python 
+
+ENV PYTHON_LIB_PATH=/usr/lib64/python$PYTHON_VERSION/site-packages
+ENV JAVA_HOME=/usr/lib/jvm/java-1.8.0
+ENV PATH=/home/default/.local/bin:/opt/app-root/src/.local/bin/:$PATH
+
+COPY ./loop.sh /utils/
+## sourcestrategy doesn't work because git clone doesnt work here
+
+RUN if [ "$PYTHON_VERSION" = "2.7" ] ; then yum install -y python27 python-devel && rm -fr /usr/bin/python && ln -s /usr/bin/python2.7 /usr/bin/python ; fi \
+    && if [[ $PYTHON_VERSION == 3.* ]] ; then yum install -y python${PYTHON_VERSION//.} python3-devel python3-setuptools python3-pip python3-virtualenv && rm -fr /usr/bin/python && ln -s /usr/bin/python${PYTHON_VERSION} /usr/bin/python; fi \
+	&& curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py" \
+    && if [ "$PYTHON_VERSION" = "2.7" ] ; then python$PYTHON_VERSION get-pip.py ; fi \
+    && if [[ $PYTHON_VERSION == 3.* ]] ; then  export LD_LIBRARY_PATH="/usr/lib64:/usr/local/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" && export PYTHON_LIB_PATH=/usr/lib64/python$PYTHON_VERSION/site-packages && rm -fr /usr/bin/python && ln -s /usr/bin/python$PYTHON_VERSION /usr/bin/python && python get-pip.py && rm -fr /usr/bin/pip && ln -s /usr/bin/pip-3 /usr/bin/pip ; fi \
+    && pip install --upgrade pip==19.0.1 \
+    && pip --no-cache-dir install ${TF_PACKAGE}
+
+
+USER 1001
+# Make the default PWD somewhere that the user can write. This is
+# useful when connecting with 'oc run' and starting a 'spark-shell',
+# which will likely try to create files and directories in PWD and
+# error out if it cannot.
+
+# TODO: Set the default CMD for the image
+CMD ["/usr/libexec/s2i/usage"]
+
+

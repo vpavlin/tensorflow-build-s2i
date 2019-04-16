@@ -1,0 +1,247 @@
+{
+	"kind": "Template",
+	"apiVersion": "v1",
+	"metadata": {
+		"name": "build-deploy-loop",
+		"annotations": {
+			"description": "Template to build simple build images.",
+			"tags": "build-deploy-loop"
+		}
+	},
+	"objects": [{
+			"kind": "ImageStream",
+			"apiVersion": "v1",
+			"metadata": {
+				"name": "${APPLICATION_NAME}",
+				"labels": {
+					"appTypes": "build-deploy-loop",
+					"appName": "${APPLICATION_NAME}"
+				}
+			},
+			"spec": {
+				"lookupPolicy": {
+					"local": true
+				}
+			}
+		},
+		{
+			"kind": "BuildConfig",
+			"apiVersion": "v1",
+			"metadata": {
+				"name": "${APPLICATION_NAME}",
+				"labels": {
+					"appTypes": "build-deploy-loop",
+					"appName": "${APPLICATION_NAME}"
+				}
+			},
+			"spec": {
+				"triggers": [{
+						"type": "ConfigChange"
+					},
+					{
+						"type": "ImageChange"
+					},
+					{
+						"type": "Generic",
+						"generic": {
+							"secret": "${GENERIC_WEBHOOK_SECRET}"
+						}
+					}
+				],
+				"source": {
+					"type": "Git",
+					"git": {
+						"uri": "${SOURCE_REPOSITORY}",
+						"ref": "${SOURCE_REPOSITORY_BRANCH}"
+					},
+					"contextDir": "${SOURCE_REPOSITORY_CONTEXT_DIR}"
+				},
+				"strategy": {
+					"type": "Docker",
+					"dockerStrategy": {
+						"noCache": true,
+						"dockerfilePath": "${DOCKER_FILE_PATH}",
+						"from": {
+							"kind": "${S2I_BASE_IMAGE_KIND}",
+							"name": "${S2I_BASE_IMAGE}"
+						},
+						"env": [{
+								"name": "TEST_LOOP",
+								"value": "${TEST_LOOP}"
+							},
+							{
+								"name": "HOST_ON_HTTP_SERVER",
+								"value": "${HOST_ON_HTTP_SERVER}"
+							},
+							{
+								"name": "LIBRARY_VERSION",
+								"value": "${LIBRARY_VERSION}"
+							},
+							{
+								"name": "CUSTOM_BUILD",
+								"value": "${CUSTOM_BUILD}"
+							}
+						]
+					}
+				},
+				"output": {
+					"to": {
+						"kind": "ImageStreamTag",
+						"name": "${APPLICATION_NAME}:${APPLICATION_IMAGE_TAG}"
+					}
+				},
+				"resources": {
+					"limits": {
+						"cpu": "4",
+						"memory": "8Gi"
+					},
+					"requests": {
+						"cpu": "4",
+						"memory": "8Gi"
+					}
+				}
+			}
+		},
+		{
+			"apiVersion": "v1",
+			"kind": "Pod",
+			"metadata": {
+				"name": "${APPLICATION_NAME}"
+			},
+			"spec": {
+				"restartPolicy": "OnFailure",
+				"containers": [{
+					"name": "${APPLICATION_NAME}",
+					"image": "${APPLICATION_NAME}:${APPLICATION_IMAGE_TAG}",
+					"command": ["container-entrypoint", "/utils/loop.sh"],
+					"env": [{
+							"name": "NVIDIA_VISIBLE_DEVICES",
+							"value": "all"
+						},
+						{
+							"name": "NVIDIA_DRIVER_CAPABILITIES",
+							"value": "compute,utility"
+						},
+						{
+							"name": "NVIDIA_REQUIRE_CUDA",
+							"value": "cuda>=9.0"
+						},
+						{
+							"name": "TEST_LOOP",
+							"value": "${TEST_LOOP}"
+						},
+						{
+							"name": "HOST_ON_HTTP_SERVER",
+							"value": "${HOST_ON_HTTP_SERVER}"
+						},
+						{
+							"name": "LIBRARY_VERSION",
+							"value": "${LIBRARY_VERSION}"
+						},
+						{
+							"name": "CUSTOM_BUILD",
+							"value": "${CUSTOM_BUILD}"
+						}
+					],
+					"securityContext": {
+						"allowPrivilegeEscalation": false,
+						"capabilities": {
+							"drop": [
+								"ALL"
+							]
+						},
+						"seLinuxOptions": {
+							"type": "nvidia_container_t"
+						}
+					},
+					"resources": {
+						"limits": {
+							"nvidia.com/gpu": 1
+						}
+					}
+				}]
+			}
+		}
+	],
+	"parameters": [{
+			"name": "APPLICATION_NAME",
+			"description": "The name of the application.",
+			"value": "build-deploy-loop",
+			"from": "[a-zA-Z0-9]{10}",
+			"required": true
+		},
+		{
+			"name": "APPLICATION_IMAGE_TAG",
+			"description": "The tag of application image.",
+			"value": "1",
+			"from": "[a-zA-Z0-9]{10}",
+			"required": true
+		},
+		{
+			"name": "SOURCE_REPOSITORY",
+			"description": "Git repository for source.",
+			"value": "https://github.com/thoth-station/tensorflow-build-s2i.git",
+			"required": true
+		},
+		{
+			"name": "SOURCE_REPOSITORY_BRANCH",
+			"description": "Git repository branch for source.",
+			"value": "master",
+			"required": true
+		},
+		{
+			"name": "SOURCE_REPOSITORY_CONTEXT_DIR",
+			"description": "Git repository context dir for source.",
+			"value": "./cuda",
+			"required": true
+		},
+		{
+			"name": "S2I_BASE_IMAGE",
+			"description": "build-s2i-image:base, cuda:10.0-cudnn7-devel-rhel7",
+			"value": "cuda:10.0-cudnn7-devel-rhel7",
+			"required": true
+		},
+		{
+			"name": "S2I_BASE_IMAGE_KIND",
+			"description": "DockerImage, ImageStreamTag",
+			"value": "ImageStreamTag",
+			"required": true
+		},
+		{
+			"name": "DOCKER_FILE_PATH",
+			"description": "Dockerfile.centos7, Dockerfile.fedora28, Dockerfile.rhel75.",
+			"value": "Dockerfile.centos7",
+			"required": true
+		},
+		{
+			"name": "TEST_LOOP",
+			"description": "USE ONLY with DeploymentConfig.(y or n).If y then start a while loop.If y then http won't start.",
+			"value": "n",
+			"required": true
+		},
+		{
+			"name": "HOST_ON_HTTP_SERVER",
+			"description": "USE ONLY with DeploymentConfig.(y or n)If y then http server.",
+			"value": "n",
+			"required": true
+		},
+		{
+			"name": "GENERIC_WEBHOOK_SECRET",
+			"description": "A secret string used to configure the Generic webhook.",
+			"value": "build-secret",
+			"required": true
+		},
+		{
+			"name": "LIBRARY_VERSION",
+			"description": "LIBRARY_VERSION",
+			"value": "0.22.0",
+			"required": true
+		},
+		{
+			"name": "CUSTOM_BUILD",
+			"description": "CUSTOM_BUILD",
+			"value": "cd /tmp/bazel && ./compile ",
+			"required": true
+		}
+	]
+}
