@@ -4,7 +4,12 @@ def pythonVersion = env.PYTHON_VERSION ?: "3.6"
 def pythonVersionNoDecimal = pythonVersion.replaceAll("[^a-zA-Z0-9]+","")
 def bazelVersion = env.BAZEL_VERSION ?: "0.15.0"
 def tfBranch = env.TF_GIT_BRANCH ?: "r1.10"
-def customBuild = env.CUSTOM_BUILD ?: "bazel build -c opt --cxxopt='-D_GLIBCXX_USE_CXX11_ABI=0' --local_resources 2048,2.0,1.0 --verbose_failures //tensorflow/tools/pip_package:build_pip_package"
+def customBuild = env.CUSTOM_BUILD ?: "bazel build -c opt --cxxopt='-D_GLIBCXX_USE_CXX11_ABI=0' --verbose_failures //tensorflow/tools/pip_package:build_pip_package"
+def cpuLimit = env.CPU_LIMIT ?: "32"
+def cpuRequests = env.CPU_REQUESTS?: "32"
+def memLimit = env.MEMORY_LIMIT ?: "50Gi"
+def memRequests = env.MEMORY_REQUESTS ?: "50Gi"
+def enableCleanup = env.CLEANUP ?: false
 
 // Name of project in OpenShift
 def project = "tensorflow"
@@ -40,12 +45,13 @@ node {
             timeout(1) {
               imageStreamBuildConfig.related('builds').untilEach {
                 if (it.object().status.phase == "Complete") {
+                  echo "Status0 imageBuildCompleted"
                   imageBuildCompleted = true
                 }
                 return imageBuildCompleted
               }
             }
-
+            echo "Status0 Done"
             // If build is not completed after 1 minuete, we are assuming there was an error
             // And throwing to the catch block
             if (!imageBuildCompleted) {
@@ -64,7 +70,11 @@ node {
               "-p", "CUSTOM_BUILD=${customBuild}",
               "-p", "PYTHON_VERSION=${pythonVersion}",
               "-p", "GIT_TOKEN=${env.GIT_TOKEN}",
-              "-p", "TF_GIT_BRANCH=${tfBranch}"
+              "-p", "TF_GIT_BRANCH=${tfBranch}",
+              "-p", "CPU_LIMIT=${cpuLimit}",
+              "-p", "CPU_REQUESTS=${cpuRequests}",
+              "-p", "MEMORY_LIMIT=${memLimit}",
+              "-p", "MEMORY_REQUESTS=${memRequests}"
             )
             def createdJob = openshift.create(buildJob)
             jobPods = createdJob.related('pods')
@@ -72,25 +82,27 @@ node {
             // Check OpenShift to make sure the pod is running before trying to tail the logs
             timeout(5) {
               jobPods.untilEach {
+                echo "Status1: ${it.object().status.phase}"
                 return (it.object().status.phase == "Running")
               }
             }
-
+            echo "Status1 done"
             // Check OpenShift to see if the build has Succeeded
             def jobSucceeded = false
-            timeout(5) {
+            timeout(25) {
               jobPods.untilEach {
+                echo "Status2: ${it.object().status.phase}"
                 if (it.object().status.phase == "Succeeded") {
                   jobSucceeded = true
                 }
                 return jobSucceeded
               }
             }
-
+            echo "Status2 done"
             // If build is not completed after 1 minute, we are assuming there was an error
             // And throwing to the catch block
             if (!jobSucceeded) {
-              error("An error has occurred in tf-${operatingSystem}-${pythonVersionNoDecimal}-job-${uuid}")
+              error("===An error has occurred in tf-${operatingSystem}-${pythonVersionNoDecimal}-job-${uuid}")
             }
           }//end of stage
         } catch (e) {
@@ -99,10 +111,12 @@ node {
         } finally {
           // Delete all resources related to the current build
           stage("Cleanup") {
-            def resultlog = jobPods.logs()
-            echo resultlog.toString()
-            openshift.delete(builderImageStream)
-            openshift.delete(buildJob)
+            //def resultlog = jobPods.logs()
+            //echo resultlog.toString()
+            if (enableCleanup) {
+              openshift.delete(builderImageStream)
+              openshift.delete(buildJob)
+            }
           }
         }
       }
