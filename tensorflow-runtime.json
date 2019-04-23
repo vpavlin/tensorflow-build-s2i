@@ -2,10 +2,10 @@
 	"kind": "Template",
 	"apiVersion": "v1",
 	"metadata": {
-		"name": "cuda-tf-runtime",
+		"name": "tensorflow-runtime-image",
 		"annotations": {
 			"description": "Template to build simple build images.",
-			"tags": "cuda-tf-runtime"
+			"tags": "tensorflow-runtime-image"
 		}
 	},
 	"objects": [{
@@ -14,7 +14,7 @@
 			"metadata": {
 				"name": "${APPLICATION_NAME}",
 				"labels": {
-					"appTypes": "cuda-tf-runtime",
+					"appTypes": "tensorflow-runtime-image",
 					"appName": "${APPLICATION_NAME}"
 				}
 			},
@@ -30,7 +30,7 @@
 			"metadata": {
 				"name": "${APPLICATION_NAME}",
 				"labels": {
-					"appTypes": "cuda-tf-runtime",
+					"appTypes": "tensorflow-runtime-image",
 					"appName": "${APPLICATION_NAME}"
 				}
 			},
@@ -116,7 +116,7 @@
 			"metadata": {
 				"name": "${APPLICATION_NAME}",
 				"labels": {
-					"appTypes": "cuda-tf-runtime",
+					"appTypes": "tensorflow-runtime-image",
 					"appName": "${APPLICATION_NAME}"
 				}
 			},
@@ -125,7 +125,10 @@
 				"containers": [{
 					"name": "${APPLICATION_NAME}",
 					"image": "${APPLICATION_NAME}:${APPLICATION_IMAGE_TAG}",
-					"command": ["container-entrypoint", "/utils/loop.sh"],
+					"command": [
+						"container-entrypoint",
+						"/utils/loop.sh"
+					],
 					"env": [{
 							"name": "NVIDIA_VISIBLE_DEVICES",
 							"value": "all"
@@ -168,7 +171,8 @@
 					},
 					"resources": {
 						"limits": {
-							"nvidia.com/gpu": "${GPU_COUNT}"
+							"nvidia.com/gpu": "${GPU_COUNT}",
+							"memory": "10Gi"
 						}
 					}
 				}]
@@ -178,7 +182,7 @@
 	"parameters": [{
 			"name": "APPLICATION_NAME",
 			"description": "The name of the application.",
-			"value": "cuda-tf-runtime",
+			"value": "tensorflow-runtime-image",
 			"from": "[a-zA-Z0-9]{10}",
 			"required": true
 		},
@@ -209,7 +213,7 @@
 		},
 		{
 			"name": "S2I_BASE_IMAGE",
-			"description": "build-s2i-image:base, cuda:10.0-cudnn7-devel-rhel7",
+			"description": "submod/s2i-core-ubi7, build-s2i-image:base, cuda:10.0-cudnn7-devel-rhel7",
 			"value": "cuda:10.0-cudnn7-devel-rhel7",
 			"required": true
 		},
@@ -258,7 +262,7 @@
 		{
 			"name": "PYTHON_VERSION",
 			"description": "PYTHON_VERSION",
-			"value": "",
+			"value": "3.6",
 			"required": true
 		},
 		{

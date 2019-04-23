@@ -35,6 +35,11 @@ RUN chmod +x /utils/loop.sh
 
 ## sourcestrategy doesn't work because git clone doesnt work here
 
+# https://github.com/tensorflow/serving/issues/1015
+# https://github.com/tensorflow/tensorflow/issues/14573
+# https://github.com/tensorflow/tensorflow/issues/25865
+# https://github.com/tensorflow/tensorflow/issues/1530
+
 RUN yum install -y yum-utils tar tree git curl wget \
     && yum install -y vim gcc gcc-c++ glibc-devel openssl-devel perf \
     && yum install -y which findutils x86info cpuid dmidecode procps \

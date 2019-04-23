@@ -33,6 +33,14 @@ oc new-app --template=cuda-tf-runtime  \
 --param=PYTHON_VERSION=2.7 \
 --param=TF_PACKAGE=
 
+oc new-app --template=cuda-tf-runtime  \
+--param=S2I_BASE_IMAGE=cuda:10.0-cudnn7-devel-rhel7  \
+--param=APPLICATION_NAME=cuda-tf-runtime-36-redhat \
+--param=APPLICATION_IMAGE_TAG=rhel7-1-56-10.0-cudnn7-devel-rhel7 \
+--param=DOCKER_FILE_PATH=Dockerfile.centos7 \
+--param=PYTHON_VERSION=3.6 \
+--param=TF_PACKAGE=https://github.com/AICoE/tensorflow-wheels/releases/download/tf-r1.13-cpu-2019-04-23_015354/tensorflow-1.13.1-cp36-cp36m-linux_x86_64.whl
+
 ```
 get `TF_PACKAGE` values from [AICoE/tensorflow-wheels](https://github.com/AICoE/tensorflow-wheels/releases).
 
