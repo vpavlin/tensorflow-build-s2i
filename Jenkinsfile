@@ -87,9 +87,10 @@ node {
               }
             }
             echo "Status1 done"
+            jobPods.logs("-f")
             // Check OpenShift to see if the build has Succeeded
             def jobSucceeded = false
-            timeout(25) {
+            timeout(35) {
               jobPods.untilEach {
                 echo "Status2: ${it.object().status.phase}"
                 if (it.object().status.phase == "Succeeded") {
@@ -99,7 +100,7 @@ node {
               }
             }
             echo "Status2 done"
-            // If build is not completed after 1 minute, we are assuming there was an error
+            // If build is not completed after 35 minute, we are assuming there was an error
             // And throwing to the catch block
             if (!jobSucceeded) {
               error("===An error has occurred in tf-${operatingSystem}-${pythonVersionNoDecimal}-job-${uuid}")
