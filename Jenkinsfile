@@ -42,7 +42,7 @@ node {
 
             // Check OpenShift to see if the build has completed
             def imageBuildCompleted = false
-            timeout(1) {
+            timeout(10) {
               imageStreamBuildConfig.related('builds').untilEach {
                 if (it.object().status.phase == "Complete") {
                   echo "Status0 imageBuildCompleted"
