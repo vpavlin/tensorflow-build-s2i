@@ -38,6 +38,14 @@ node {
             def createdImageStream = openshift.create(builderImageStream)
             createdImageStream.describe()
             def imageStreamBuildConfig = createdImageStream.narrow('bc')
+            // Check OpenShift to make sure the pod is running before trying to tail the logs
+            def builds = imageStreamBuildConfig.related('builds')
+            timeout(5) {
+              builds.untilEach {
+                echo "builds Status: ${it.object().status.phase}"
+                return (it.object().status.phase == "Running")
+              }
+            }
             imageStreamBuildConfig.logs('-f')
 
             // Check OpenShift to see if the build has completed
