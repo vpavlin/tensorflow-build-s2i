@@ -43,6 +43,7 @@ node {
             timeout(5) {
               builds.untilEach {
                 echo "builds Status: ${it.object().status.phase}"
+                // Pending --> Running
                 return (it.object().status.phase == "Running")
               }
             }
@@ -103,6 +104,8 @@ node {
                 echo "Status2: ${it.object().status.phase}"
                 if (it.object().status.phase == "Succeeded") {
                   jobSucceeded = true
+                } else if (it.object().status.phase == "Failed") {
+                  return jobSucceeded
                 }
                 return jobSucceeded
               }
