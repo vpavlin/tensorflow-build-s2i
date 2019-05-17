@@ -26,6 +26,22 @@
             }
         },
         {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "python-36-rhel7",
+                "labels": {
+                    "appTypes": "cuda-build-chain",
+                    "appName": "${APPLICATION_NAME}"
+                }
+            },
+            "spec": {
+                "lookupPolicy": {
+                    "local": true
+                }
+            }
+        },
+        {
             "kind": "BuildConfig",
             "apiVersion": "v1",
             "metadata": {
@@ -67,7 +83,12 @@
                         "from": {
                             "kind": "DockerImage",
                             "name": "${S2I_IMAGE}"
-                        }
+                        },
+                        "env": [{
+                                "name": "S2I_IMAGE",
+                                "value": "${S2I_IMAGE}"
+                            }
+                        ]
                     }
                 },
                 "output": {
@@ -331,6 +352,68 @@
                     }
                 }
             }
+        },
+        {
+            "kind": "BuildConfig",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME_6}",
+                "labels": {
+                    "appTypes": "cuda-build-chain",
+                    "appName": "${APPLICATION_NAME}",
+                    "appName1": "${APPLICATION_NAME_6}"
+                }
+            },
+            "spec": {
+                "triggers": [
+                    {
+                        "type": "ConfigChange"
+                    },
+                    {
+                        "type": "ImageChange"
+                    },
+                    {
+                        "type": "Generic",
+                        "generic" : {
+                          "secret": "${GENERIC_WEBHOOK_SECRET}"
+                        }
+                    }
+                ],
+                "source": {
+                    "type": "Git",
+                    "git": {
+                        "uri": "https://github.com/sclorg/s2i-python-container.git",
+                        "ref": "master"
+                    },
+                    "contextDir": "${S2I_PYTHON_VERSION}"
+                },
+                "strategy": {
+                    "dockerStrategy": {
+                      "noCache": true,
+                      "dockerfilePath": "${S2I_PYTHON_DOCKER_FILE_PATH}",
+                        "from": {
+                            "kind": "ImageStreamTag",
+                            "name": "cuda:${APPLICATION_NAME_5}"
+                        }
+                    }
+                },
+                "output": {
+                    "to": {
+                        "kind": "ImageStreamTag",
+                        "name": "python-36-rhel7:${APPLICATION_NAME_5}"
+                    }
+                },
+                "resources": {
+                    "limits": {
+                        "cpu": "4",
+                        "memory": "4Gi"
+                    },
+                    "requests": {
+                        "cpu": "4",
+                        "memory": "4Gi"
+                    }
+                }
+            }
         }
     ],
     "parameters": [
@@ -377,6 +460,13 @@
             "required": true
         },
         {
+            "name": "APPLICATION_NAME_6",
+            "description": "The name of the application.",
+            "value": "python-36-rhel7",
+            "from": "[a-zA-Z0-9]{10}",
+            "required": true
+        },
+        {
             "name": "SOURCE_REPOSITORY",
             "description": "Git repository for source.",
             "value": "https://github.com/sub-mod/cuda.git",
@@ -396,14 +486,26 @@
         },
         {
             "name": "S2I_IMAGE",
-            "description": "submod/s2i-core-ubi7,registry.fedoraproject.org/f27/s2i-core, registry.fedoraproject.org/f28/s2i-core, registry.access.redhat.com/rhscl/s2i-core-rhel7",
-            "value": "registry.access.redhat.com/rhscl/s2i-core-rhel7:1-56",
+            "description": "submod/s2i-core-ubi7,registry.fedoraproject.org/f27/s2i-core, registry.fedoraproject.org/f28/s2i-core, registry.access.redhat.com/rhscl/s2i-core-rhel7, https://access.redhat.com/containers/?tab=overview#/registry.access.redhat.com/rhscl/s2i-base-rhel7",
+            "value": "registry.access.redhat.com/rhscl/s2i-base-rhel7:1-79",
             "required": true
         },
         {
             "name": "DOCKER_FILE_PATH",
             "description": "Dockerfile.fedora27, Dockerfile.fedora28, Dockerfile.rhel75.",
             "value": "Dockerfile",
+            "required": true
+        },
+        {
+            "name": "S2I_PYTHON_VERSION",
+            "description": "3.6",
+            "value": "3.6",
+            "required": true
+        },
+        {
+            "name": "S2I_PYTHON_DOCKER_FILE_PATH",
+            "description": "Dockerfile.fedora27, Dockerfile.fedora28, Dockerfile.rhel75.",
+            "value": "Dockerfile.rhel7",
             "required": true
         }
     ]
