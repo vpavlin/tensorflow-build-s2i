@@ -29,7 +29,7 @@
             "kind": "ImageStream",
             "apiVersion": "v1",
             "metadata": {
-                "name": "python-36-rhel7",
+                "name": "${APPLICATION_NAME_6}",
                 "labels": {
                     "appTypes": "cuda-build-chain",
                     "appName": "${APPLICATION_NAME}"
@@ -400,7 +400,7 @@
                 "output": {
                     "to": {
                         "kind": "ImageStreamTag",
-                        "name": "python-36-rhel7:${APPLICATION_NAME_5}"
+                        "name": "${APPLICATION_NAME_6}:${APPLICATION_NAME_5}"
                     }
                 },
                 "resources": {
