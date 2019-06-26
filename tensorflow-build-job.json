@@ -187,11 +187,19 @@
                                     {
                                         "name": "TF_ENABLE_TEST",
                                         "value": "${TF_ENABLE_TEST}"
+                                    },
+                                    {
+                                        "name": "GIT_TAG",
+                                        "value": "${GIT_TAG}"
+                                    },
+                                    {
+                                        "name": "GIT_RELEASE_NOTES",
+                                        "value": "${GIT_RELEASE_NOTES}"
                                     }
                                 ],
                                 "name": "${APPLICATION_NAME}",
                                 "image": "${BUILDER_IMAGESTREAM}",
-                                "command": ["/entrypoint", "/usr/libexec/s2i/run"],
+                                "command": ["/entrypoint", "${BUILD_SCRIPT}"],
                                 "resources": {
                                     "limits": {
                                         "cpu": "${CPU_LIMIT}",
@@ -493,6 +501,24 @@
             "description": "MEMORY_REQUESTS",
             "value": "8Gi",
             "required": true
+        },
+        {
+            "name": "BUILD_SCRIPT",
+            "description": "BUILD_SCRIPT- /usr/libexec/s2i/run  or /usr/libexec/s2i/manylinux2010",
+            "value": "/usr/libexec/s2i/run",
+            "required": true
+        },
+        {
+            "name": "GIT_TAG",
+            "description": "GIT_TAG",
+            "value": "",
+            "required": false
+        },
+        {
+            "name": "GIT_RELEASE_NOTES",
+            "description": "GIT_RELEASE_NOTES",
+            "value": "",
+            "required": false
         }
     ]
 }

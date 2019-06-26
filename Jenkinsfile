@@ -10,6 +10,8 @@ def cpuRequests = env.CPU_REQUESTS?: "32"
 def memLimit = env.MEMORY_LIMIT ?: "50Gi"
 def memRequests = env.MEMORY_REQUESTS ?: "50Gi"
 def enableCleanup = env.CLEANUP ?: false
+def pipList = env.PIP_LIST ?: ""
+def buildScript = env.BUILD_SCRIPT ?: ""
 
 // Name of project in OpenShift
 def project = "tensorflow"
@@ -33,6 +35,7 @@ node {
               "-p", "BAZEL_VERSION=${bazelVersion}",
               "-p", "DOCKER_FILE_PATH=Dockerfile.${operatingSystem}",
               "-p", "PYTHON_VERSION=${pythonVersion}",
+              "-p", "PIP_LIST=${pipList}",
               "-p", "S2I_IMAGE=${s2iImage}"
             )
             def createdImageStream = openshift.create(builderImageStream)
@@ -83,7 +86,8 @@ node {
               "-p", "CPU_LIMIT=${cpuLimit}",
               "-p", "CPU_REQUESTS=${cpuRequests}",
               "-p", "MEMORY_LIMIT=${memLimit}",
-              "-p", "MEMORY_REQUESTS=${memRequests}"
+              "-p", "MEMORY_REQUESTS=${memRequests}",
+              "-p", "BUILD_SCRIPT=${buildScript}"
             )
             def createdJob = openshift.create(buildJob)
             jobPods = createdJob.related('pods')

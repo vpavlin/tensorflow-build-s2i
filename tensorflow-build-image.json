@@ -74,6 +74,14 @@
                                     {
                                         "name": "BAZEL_VERSION",
                                         "value": "${BAZEL_VERSION}"
+                                    },
+                                    {
+                                        "name": "DEV_TOOLSET_VERSION",
+                                        "value": "${DEV_TOOLSET_VERSION}"
+                                    },
+                                    {
+                                        "name": "PIP_LIST",
+                                        "value": "${PIP_LIST}"
                                     }
                         ]
                     }
@@ -139,6 +147,18 @@
             "name": "BAZEL_VERSION",
             "description": "BAZEL_VERSION",
             "value": "0.20.0",
+            "required": true
+        },
+        {
+            "name": "DEV_TOOLSET_VERSION",
+            "description": "DEV_TOOLSET_VERSION",
+            "value": "7",
+            "required": true
+        },
+        {
+            "name": "PIP_LIST",
+            "description": "Version of dependencies to be installed via pip",
+            "value": "setuptools enum34 futures mock numpy six pixiedust pillow pyaml keras",
             "required": true
         },
         {
