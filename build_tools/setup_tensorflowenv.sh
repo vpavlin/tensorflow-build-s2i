@@ -4,7 +4,7 @@
 # ----------------------------
 
 echo "==============================="
-echo "Setup Python after devtoolset gcc..."
+echo "Setup Tensorflow build env..."
 major=$(cat /etc/centos-release | tr -dc '0-9.'|cut -d \. -f1)
 minor=$(cat /etc/centos-release | tr -dc '0-9.'|cut -d \. -f2)
 OSVER=$(cat /etc/redhat-release | cut -d' ' -f1 |  awk '{print tolower($0)}')
@@ -17,7 +17,10 @@ if [[ "$OS_VERSION" = "rhel6" ]] || [[ "$OS_VERSION" = "centos6" ]] ; then
 	echo "Found environment $OS_VERSION-$PYTHON_VERSION"  &&
 	rm -fr /usr/bin/gcc &&
 	rm -fr /usr/bin/g++ &&
-	rm -fr /usr/bin/ld ;
+	rm -fr /usr/bin/ld &&
+	ln -s /opt/rh/devtoolset-$DEV_TOOLSET_VERSION/root/usr/bin/gcc /usr/bin/gcc &&
+	ln -s /opt/rh/devtoolset-$DEV_TOOLSET_VERSION/root/usr/bin/g++ /usr/bin/g++ &&
+	ln -s /opt/rh/devtoolset-$DEV_TOOLSET_VERSION/root/usr/bin/ld /usr/bin/ld;
 fi
 
 echo | gcc -E -Wp,-v -

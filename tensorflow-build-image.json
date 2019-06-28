@@ -121,7 +121,7 @@
         },
         {
             "name": "S2I_IMAGE",
-            "description": "registry.fedoraproject.org/f27/s2i-core, registry.fedoraproject.org/f28/s2i-core, registry.access.redhat.com/rhscl/s2i-core-rhel7",
+            "description": "quay.io/aicoe/s2i-base-centos6, registry.fedoraproject.org/f27/s2i-core, registry.fedoraproject.org/f28/s2i-core, registry.access.redhat.com/rhscl/s2i-core-rhel7",
             "value": "registry.fedoraproject.org/f27/s2i-core",
             "required": true
         },
@@ -133,7 +133,7 @@
         },
         {
             "name": "DOCKER_FILE_PATH",
-            "description": "Dockerfile.fedora27, Dockerfile.fedora28, Dockerfile.rhel75.",
+            "description": "Dockerfile.centos6, Dockerfile.fedora27, Dockerfile.fedora28, Dockerfile.rhel75.",
             "value": "Dockerfile.centos7",
             "required": true
         },
@@ -145,8 +145,8 @@
         },
         {
             "name": "BAZEL_VERSION",
-            "description": "BAZEL_VERSION",
-            "value": "0.20.0",
+            "description": "BAZEL_VERSION - 0.24.1,0.21.0,0.18.0",
+            "value": "0.21.0",
             "required": true
         },
         {
@@ -158,7 +158,7 @@
         {
             "name": "PIP_LIST",
             "description": "Version of dependencies to be installed via pip",
-            "value": "setuptools enum34 futures mock numpy six pixiedust pillow pyaml keras",
+            "value": "wheel==0.31.1 setuptools==39.1.0 six==1.12.0 absl-py protobuf==3.6.1 enum34 futures>=0.17.1 mock numpy==1.14.5 pixiedust pillow pyaml keras_applications==1.0.8",
             "required": true
         },
         {

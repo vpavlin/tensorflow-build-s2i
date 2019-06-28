@@ -18,6 +18,7 @@ ARG DEV_TOOLSET_VERSION=7
 ARG PYTHON_VERSION=3.6
 # https://github.com/tensorflow/tensorflow/blob/master/tensorflow/tools/ci_build/install/install_pip_packages.sh
 ARG PIP_LIST="wheel==0.31.1 setuptools==39.1.0 six==1.12.0 absl-py protobuf==3.6.1 enum34 futures>=0.17.1 mock numpy==1.14.5 pixiedust pillow pyaml keras_applications==1.0.8"
+
 ENV BAZEL_VERSION=$BAZEL_VERSION
 ENV DEV_TOOLSET_VERSION=$DEV_TOOLSET_VERSION
 ENV PIP_LIST=$PIP_LIST
@@ -61,6 +62,8 @@ ENV TF_NEED_MPI 0
 ENV TF_NEED_GDR 0
 ENV TF_NEED_S3 0
 ENV TF_NEED_KAFKA 0
+ENV TF_NEED_IGNITE 0
+ENV TF_NEED_ROCM 0
 ENV TF_NEED_OPENCL_SYCL 0
 ENV TF_DOWNLOAD_CLANG 0
 ENV TF_SET_ANDROID_WORKSPACE 0
@@ -126,8 +129,10 @@ RUN cd /opt/app-root/ \
 # SHELL [ "/usr/bin/scl", "enable", "rh-python36" ]
 # RUN python -V 
 
-# use container-entrypoint before running user application
+# don't use container-entrypoint before running user application
 COPY ./s2i/bin/ /usr/libexec/s2i
+ADD entrypoint /entrypoint
+RUN chmod +x /entrypoint
 ADD build_tools /build_tools
 
 # Install pip and dependencies for tensorflow build.
@@ -166,7 +171,7 @@ USER 1001
 
 WORKDIR /workspace
 
-ENTRYPOINT ["container-entrypoint"]
+ENTRYPOINT ["/entrypoint"]
 
 # TODO: Set the default CMD for the image
 CMD ["/usr/libexec/s2i/usage"]
