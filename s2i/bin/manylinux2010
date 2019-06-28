@@ -58,7 +58,6 @@ env_check TF_NEED_OPENCL_SYCL
 env_check TF_DOWNLOAD_CLANG
 env_check TF_SET_ANDROID_WORKSPACE
 
-
 ### 1.12 tensorflow needs below new configs
 env_check TF_NEED_IGNITE
 env_check TF_NEED_ROCM
@@ -83,47 +82,31 @@ env_check TEST_WHEEL_FILE MY_EXIT_1
 env_check GIT_RELEASE_REPO MY_EXIT_1
 env_check HOME
 
-OUATH_SCOPE=$(check_oauth_scope)
-env_check OUATH_SCOPE
+OAUTH_SCOPE=$(check_oauth_scope)
+echo "OAUTH_SCOPE uses GIT_TOKEN"
+env_check OAUTH_SCOPE
 echo "============================================"
 
 TEST_CMD="import tensorflow as tf ; a = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[2, 3], name='a') ; \
 	b = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[3, 2], name='b') ; c = tf.matmul(a, b) ; \
 	sess = tf.Session(config=tf.ConfigProto(log_device_placement=True)) ;print(sess.run(c))"
 
-
 BUILD_TOOLS_DIR="/build_tools"
 env_check BUILD_TOOLS_DIR
 
-# source scl_source enable devtoolset-7
-# source /opt/rh/devtoolset-7/enable
-# /usr/bin/scl enable devtoolset-7 bash (this exits)
-gcc -v
-python -V
-source scl_source enable devtoolset-7
-if [ "$PYTHON_VERSION" = "3.6" ] ; then echo "Enabling Python 3.6" && source scl_source enable rh-python36 ; fi
-gcc -v
-python -V
-
-
-#TODO
-#pip list 2>&1 | grep "YAML\|proto\|numpy"
-#echo "PYTHON_LIB_PATH=`$PYTHON_BIN_PATH -c 'import site; print(site.getsitepackages()[0])'`"
-#echo "PYTHONPATH="$PYTHONPATH
-#PYTHON_LIB_PATH="$($PYTHON_BIN_PATH -c 'import sys;for pth in sys.path: print pth)')"
-echo "which_python="`which python`
-echo "link_which_python="`ls -l $(which python) | awk '{print  $9 $10 $11}'`
-echo "link_bin_python="`ls -l /usr/bin/python |awk '{print  $9 $10 $11}'`
-echo "which_pip="`which pip`
-echo "which_pip_version="`pip --version `
-echo "which_pip_site="`pip --version |awk '{print $4}' `
-echo "link_which_pip="`ls -l $(which pip) | awk '{print  $9 $10 $11}'`
-pip list 2>&1 | grep "YAML\|proto\|numpy\|keras"
-
+source $BUILD_TOOLS_DIR/setup_devtoolset.sh
+source $BUILD_TOOLS_DIR/setup_python.sh
+source $BUILD_TOOLS_DIR/setup_pip.sh
+source $BUILD_TOOLS_DIR/setup_tensorflowenv.sh
 
 
 # Naming the directory according to the naming convention
+major=$(cat /etc/centos-release | tr -dc '0-9.'|cut -d \. -f1)
+minor=$(cat /etc/centos-release | tr -dc '0-9.'|cut -d \. -f2)
+OSVER=$(cat /etc/redhat-release | cut -d' ' -f1 |  awk '{print tolower($0)}')
 OSVER=$(. /etc/os-release;echo $ID$VERSION_ID)
+OS_VERSION="$OSVER$major"
+echo "OS_VERSION = "$OS_VERSION
 for varname in ${!TF_NEED_*}; do
     if [ "${!varname}" = "1" ]; then
         WORD=$(echo "${varname//TF_NEED_}" | tr '[:upper:]' '[:lower:]')
@@ -133,7 +116,7 @@ for varname in ${!TF_NEED_*}; do
         FINAL_STR+=$WORD"+"
     fi
 done
-TENSORFLOW_BUILD_DIR_NAME=$OSVER/${TF_GIT_BRANCH//r}/${FINAL_STR::-1}
+TENSORFLOW_BUILD_DIR_NAME=$OS_VERSION/${TF_GIT_BRANCH//r}/${FINAL_STR::-1}
 
 
 
@@ -150,18 +133,6 @@ then
 		sleep 1
 	done
 fi
-
-
-echo | gcc -E -Wp,-v -
-echo "which_pip_version="`pip --version `
-pip list 2>&1 | grep "YAML\|proto\|numpy\|keras"
-OSVER=$(. /etc/os-release;echo $ID)
-export PATH=$HOME/bin:$PATH
-export JAVA_HOME=$(readlink -f $JAVA_HOME)
-env_check OSVER
-env_check PATH
-env_check JAVA_HOME
-ls -l $JAVA_HOME
 
 
 ### Setup Bazel
@@ -192,11 +163,6 @@ if [ $TF_NEED_CUDA = "1" ]; then
 	env_check LD_LIBRARY_PATH
 	ls -l /usr/local/cuda/
 	ls -l /usr/local/cuda/lib64/stubs/
-	#exit 1;
-	#cd /workspace/serving/tensorflow
-	#sed -i.bak 's/@org_tensorflow\/\/third_party\/gpus\/crosstool/@local_config_cuda\/\/crosstool:toolchain/g' tools/bazel.rc
-	#cd /workspace/serving/
-	#sed -i.bak 's/@org_tensorflow\/\/third_party\/gpus\/crosstool/@local_config_cuda\/\/crosstool:toolchain/g' tools/bazel.rc
 fi 
 
 #echo "${TF_GIT_BRANCH//r}"
@@ -210,24 +176,6 @@ echo "####################################"
 echo "      configure.....       	      "
 echo "####################################"
 ./configure
-
-
-
-
-
-#--local_resources 4096,4.0,1.0 --verbose_failures
-#bazel build -c opt --config=cuda --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0" --verbose_failures //tensorflow/tools/pip_package:build_pip_package
-#bazel build -c opt --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0" --verbose_failures //tensorflow/tools/pip_package:build_pip_package
-#bazel build -c opt --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0" --local_resources 2048,3.0,1.0 --verbose_failures //tensorflow/tools/pip_package:build_pip_package
-#bazel build -c opt --config=cuda --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0" --local_resources 2048,2.0,1.0 --verbose_failures //tensorflow/tools/pip_package:build_pip_package
-#bazel build -c opt --config=cuda --spawn_strategy=standalone --verbose_failures //tensorflow_serving/model_servers:tensorflow_model_server
-#bazel build --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.2  --cxxopt='-D_GLIBCXX_USE_CXX11_ABI=0' --local_resources 2048,2.0,1.0 --verbose_failures //tensorflow/tools/pip_package:build_pip_package
-#bazel build --copt=-mavx --copt=-mavx2 --copt=-O2 --copt=-march=haswell --copt=-mfma --copt=-mfpmath=both --copt=-msse4.2  --cxxopt='-D_GLIBCXX_USE_CXX11_ABI=0' --local_resources 2048,2.0,1.0 --verbose_failures //tensorflow/tools/pip_package:build_pip_package
-#--copt=-mavx2 --copt=-O2 --copt=-march=haswell --copt=-mfma
-#bazel build --config=mkl -c opt --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mavx512f --copt=-mavx512pf --copt=-mavx512cd --copt=-mavx512er --copt="-DEIGEN_USE_VML" //tensorflow/tools/pip_package:build_pip_package
-### enable TEST_LOOP only which deployment config and NOT with Jobs. 
-
-
 
 # /workspace/bins is final location of binaries
 echo "####################################"
@@ -270,15 +218,11 @@ else
 		echo "      Releasing...			      "
 		echo "####################################"
 		cd $PIP_RELEASE_FOLDER
-		#source $BUILD_TOOLS_DIR/change_metadata.sh "$PIP_RELEASE_FOLDER/tensorflow*"  /workspace/bins/
-        pip install *.whl --user
-		cd $PIP_RELEASE_FOLDER
+		pip install *.whl --user
 		BINARY_FILE=$(basename `ls tensorflow*.whl`)
 		env_check BINARY_FILE
 		#[[ $BINARY_FILE =~ .*_serving_api* ]] && TF_FILE_NAME="tensorflow_serving_api" || TF_FILE_NAME="tf-serving"
 		TF_FILE_NAME="tf"
-		OSVER=$(. /etc/os-release;echo $ID$VERSION_ID)
-		RELEASE_NAME=$OSVER/$PYTHON_VERSION/$TF_GIT_BRANCH
         if [[ $GIT_TAG = "" ]]; then
         	if [ $TF_NEED_CUDA = "1" ]; then
                 GIT_TAG="$TF_FILE_NAME-${TF_GIT_BRANCH}-gpu-$(date +%Y-%m-%d_%H%M%S)"

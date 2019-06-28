@@ -1,6 +1,6 @@
 FROM quay.io/aicoe/s2i-base-centos6
 
-MAINTAINER Subin Modeel <smodeel@redhat.com>
+LABEL maintainer="Subin Modeel <smodeel@redhat.com>"
 
 USER root
 
@@ -12,10 +12,11 @@ LABEL io.k8s.description="S2I builder for Tensorflow binaries." \
       io.openshift.tags="builder,python,tf-build" \
       io.openshift.s2i.scripts-url="image:///usr/libexec/s2i"
 
+# Following should be passed as build-args
 ARG BAZEL_VERSION=0.21.0
 ARG DEV_TOOLSET_VERSION=7
 ARG PYTHON_VERSION=3.6
-ARG PIP_LIST="setuptools enum34 futures mock numpy six pixiedust pillow pyaml keras"
+ARG PIP_LIST="setuptools==39.1.0 six==1.12.0 absl-py protobuf==3.6.1 enum34 futures>=0.17.1 mock numpy==1.14.5 pixiedust pillow pyaml keras_applications==1.0.8"
 ENV BAZEL_VERSION=$BAZEL_VERSION
 ENV DEV_TOOLSET_VERSION=$DEV_TOOLSET_VERSION
 ENV PIP_LIST=$PIP_LIST
@@ -25,6 +26,7 @@ ENV PYTHON_VERSION=$PYTHON_VERSION
 # fix fatal: unable to look up current user in the passwd file: no such user
 ENV GIT_COMMITTER_NAME=sub-mod
 ENV GIT_COMMITTER_NAME=subin@apache.org
+
 
 # Not essential, but wise to set the lang
 # Note: Users with other languages should set this in their derivative image
@@ -39,9 +41,9 @@ ENV TINI_VERSION=v0.18.0
 
 ## Bazel
 ENV PYTHON_LIB_PATH=/usr/lib64/python$PYTHON_VERSION/site-packages
-ENV LD_LIBRARY_PATH="/usr/local/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}";
+ENV LD_LIBRARY_PATH="/usr/local/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 ENV BAZELRC /root/.bazelrc
-###ENV BAZEL_VERSION 0.15.0
+
 ################################################
 ## Tensorflow ./configure options for Bazel
 ################################################
@@ -67,10 +69,11 @@ ENV JAVA_HOME /usr/lib/jvm/java-1.8.0-openjdk-1.8.0*
 
 
 
-## TODO : (check again)sourcestrategy can't be used because git clone doesnt work here
+## TODO : (check again)sourcestrategy can't be used for bazel because git clone doesnt work here
 
 RUN yum install -y centos-release-scl \
-    && yum install -y vim gcc gcc-c++ clang glibc-devel make openssl-devel automake autoconf gpg devtoolset-$DEV_TOOLSET_VERSION rh-python36 \
+    && yum install -y vim gcc gcc-c++ clang glibc-devel make openssl-devel automake autoconf gpg devtoolset-$DEV_TOOLSET_VERSION \
+    && yum install -y rh-python36 rh-python35 python27 \
     && yum install -y which findutils x86info cpuid dmidecode procps perf \
     && yum install -y kernel-devel swig zip unzip gzip libtool binutils \
     && yum install -y freetype-devel libpng12-devel zlib-devel giflib-devel zeromq3-devel \
@@ -122,27 +125,17 @@ RUN cd /opt/app-root/ \
 # SHELL [ "/usr/bin/scl", "enable", "rh-python36" ]
 # RUN python -V 
 
-
+# use container-entrypoint before running user application
 COPY ./s2i/bin/ /usr/libexec/s2i
-ADD entrypoint /entrypoint
-RUN chmod +x /entrypoint
 ADD build_tools /build_tools
 
-RUN python -V \
-    && gcc -v \
-    && /build_tools/build_bazel.sh
-
-# No yum commands here
-# removed python to fix numpy issue
-# RUN if [ "$PYTHON_VERSION" = "3.6" ] ; then ls -l /opt/rh/rh-python36/root/usr/lib64/ && export LD_LIBRARY_PATH="/opt/rh/rh-python36/root/usr/lib64/:/usr/local/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" && echo $LD_LIBRARY_PATH  && export PYTHON_LIB_PATH=/opt/rh/rh-python36/root/usr/lib/python3.6/site-packages && echo $PYTHON_LIB_PATH && rm -fr /usr/bin/python && ln -s /opt/rh/rh-python36/root/usr/bin/python3.6 /usr/bin/python && ls -l /usr/bin/python* && python get-pip.py && rm -fr /usr/bin/pip && ln -s /opt/rh/rh-python36/root/usr/bin/pip /usr/bin/pip; fi \
-#     && if [ "$PYTHON_VERSION" = "3.6" ] ; then echo "PYTHON_H="`rpm -ql rh-python36-python-devel | grep Python.h` ; fi \
-#     && if [ "$PYTHON_VERSION" = "3.6" ] ; then ls -l /opt/rh/rh-python36/root/usr/include/ && ls -l /opt/rh/rh-python36/root/usr/lib64/ ; fi \
-#     && if [ "$PYTHON_VERSION" = "3.6" ] ; then export LD_LIBRARY_PATH="/opt/rh/rh-python36/root/usr/lib64/:/usr/local/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" ; fi \
-# 	&& 
+# Install pip and dependencies for tensorflow build.
 RUN if [ "$PYTHON_VERSION" = "3.6" ] ; then source scl_source enable rh-python36 ; fi \
     && python -V \
+    && gcc -v \
     && python /opt/app-root/get-pip.py \
     && which pip \
+    && pip -V \
     && echo $LD_LIBRARY_PATH \
     && pip install --no-cache-dir --upgrade pip \
     && [[ -z "$PIP_LIST" ]] && echo "PIP_LIST is Empty" || for x in $PIP_LIST; do echo "$x">> requirements.txt;  done \
@@ -154,6 +147,10 @@ RUN if [ "$PYTHON_VERSION" = "3.6" ] ; then source scl_source enable rh-python36
 #    && yum erase -y gcc gcc-c++ glibc-devel \
 #    && yum clean all -y \
 
+# export PATH=/opt/rh/devtoolset-7/root/usr/bin:${PATH}
+# look at difference between env output
+# need to setup Python separately
+# delete gcc/g++/python in running container for bazel to work.
 
 EXPOSE 8080
 

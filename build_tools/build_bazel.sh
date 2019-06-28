@@ -1,7 +1,8 @@
 #! /bin/bash
 
-source scl_source enable devtoolset-7
-if [ "$PYTHON_VERSION" = "3.6" ] ; then echo "enabling Python 3.6" && source scl_source enable rh-python36 ; fi
+# ensure setup_devtoolset.sh and setup_python.sh
+#
+
 gcc -v
 python -V
 FULL_JAVA_HOME=$(readlink -f $JAVA_HOME)
