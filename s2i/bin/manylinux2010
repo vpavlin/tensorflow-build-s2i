@@ -100,23 +100,41 @@ source $BUILD_TOOLS_DIR/setup_pip.sh
 source $BUILD_TOOLS_DIR/setup_tensorflowenv.sh
 
 
+### Check Bazel
+cd /workspace
+if command_exists bazel ; then 
+	echo "bazel command exists."; 
+else 
+	echo "bazel command doesnt exists"
+    source $BUILD_TOOLS_DIR/build_bazel.sh
+fi
+
+
 # Naming the directory according to the naming convention
 major=$(cat /etc/centos-release | tr -dc '0-9.'|cut -d \. -f1)
 minor=$(cat /etc/centos-release | tr -dc '0-9.'|cut -d \. -f2)
 OSVER=$(cat /etc/redhat-release | cut -d' ' -f1 |  awk '{print tolower($0)}')
-OSVER=$(. /etc/os-release;echo $ID$VERSION_ID)
 OS_VERSION="$OSVER$major"
 echo "OS_VERSION = "$OS_VERSION
+FINAL_STR=""
+FINAL_STR_COUNT=0
 for varname in ${!TF_NEED_*}; do
     if [ "${!varname}" = "1" ]; then
         WORD=$(echo "${varname//TF_NEED_}" | tr '[:upper:]' '[:lower:]')
+        if [ "$FINAL_STR_COUNT" = "0" ]; then
+        	FINAL_STR+=$WORD
+        else
+        	FINAL_STR+="+"$WORD
+        fi
         if [ "$varname" = "TF_NEED_CUDA" ]; then
                 WORD+=$TF_CUDA_VERSION
         fi
-        FINAL_STR+=$WORD"+"
+        #counter
+        FINAL_STR_COUNT=$((FINAL_STR_COUNT + 1))
     fi
 done
-TENSORFLOW_BUILD_DIR_NAME=$OS_VERSION/${TF_GIT_BRANCH//r}/${FINAL_STR::-1}
+echo "FINAL_STR = "$FINAL_STR
+TENSORFLOW_BUILD_DIR_NAME=$OS_VERSION/${TF_GIT_BRANCH//r}/${FINAL_STR}
 
 
 
@@ -135,14 +153,6 @@ then
 fi
 
 
-### Setup Bazel
-cd /workspace
-if command_exists bazel ; then 
-	echo "bazel command exists."; 
-else 
-	echo "bazel command doesnt exists"
-    exit 1;
-fi
 
 ### git clone tf and test
 cd /workspace

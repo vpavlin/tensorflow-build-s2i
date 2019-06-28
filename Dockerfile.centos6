@@ -16,7 +16,8 @@ LABEL io.k8s.description="S2I builder for Tensorflow binaries." \
 ARG BAZEL_VERSION=0.21.0
 ARG DEV_TOOLSET_VERSION=7
 ARG PYTHON_VERSION=3.6
-ARG PIP_LIST="setuptools==39.1.0 six==1.12.0 absl-py protobuf==3.6.1 enum34 futures>=0.17.1 mock numpy==1.14.5 pixiedust pillow pyaml keras_applications==1.0.8"
+# https://github.com/tensorflow/tensorflow/blob/master/tensorflow/tools/ci_build/install/install_pip_packages.sh
+ARG PIP_LIST="wheel==0.31.1 setuptools==39.1.0 six==1.12.0 absl-py protobuf==3.6.1 enum34 futures>=0.17.1 mock numpy==1.14.5 pixiedust pillow pyaml keras_applications==1.0.8"
 ENV BAZEL_VERSION=$BAZEL_VERSION
 ENV DEV_TOOLSET_VERSION=$DEV_TOOLSET_VERSION
 ENV PIP_LIST=$PIP_LIST
@@ -138,6 +139,7 @@ RUN if [ "$PYTHON_VERSION" = "3.6" ] ; then source scl_source enable rh-python36
     && pip -V \
     && echo $LD_LIBRARY_PATH \
     && pip install --no-cache-dir --upgrade pip \
+    && cd /opt/app-root/ \
     && [[ -z "$PIP_LIST" ]] && echo "PIP_LIST is Empty" || for x in $PIP_LIST; do echo "$x">> requirements.txt;  done \
     && if [ -f requirements.txt ]; then cat requirements.txt ; else echo "requirements.txt doesn't exist"; fi \
     && if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt ; else echo "requirements.txt doesn't exist"; fi
@@ -164,7 +166,7 @@ USER 1001
 
 WORKDIR /workspace
 
-ENTRYPOINT ["/entrypoint"]
+ENTRYPOINT ["container-entrypoint"]
 
 # TODO: Set the default CMD for the image
 CMD ["/usr/libexec/s2i/usage"]
