@@ -1,0 +1,73 @@
+diff --git a/tensorflow/tensorflow.bzl b/tensorflow/tensorflow.bzl
+index d93e0df..8825820 100644
+--- a/tensorflow/tensorflow.bzl
++++ b/tensorflow/tensorflow.bzl
+@@ -377,7 +377,7 @@ def tf_cc_shared_object(
+         srcs = [],
+         deps = [],
+         data = [],
+-        linkopts = [],
++        linkopts = ['-lrt'],
+         framework_so = tf_binary_additional_srcs(),
+         kernels = [],
+         **kwargs):
+@@ -413,7 +413,7 @@ def tf_cc_binary(
+         srcs = [],
+         deps = [],
+         data = [],
+-        linkopts = [],
++        linkopts = ['-lrt'],
+         copts = tf_copts(),
+         kernels = [],
+         **kwargs):
+@@ -470,7 +470,7 @@ def tf_gen_op_wrapper_cc(
+     tf_cc_binary(
+         name = tool,
+         copts = tf_copts(),
+-        linkopts = if_not_windows(["-lm", "-Wl,-ldl"]),
++        linkopts = if_not_windows(["-lm","-lrt","-Wl,-ldl"]),
+         linkstatic = 1,  # Faster to link this one-time-use binary dynamically
+         deps = [op_gen] + deps,
+     )
+@@ -650,7 +650,7 @@ def tf_gen_op_wrapper_py(
+     tf_cc_binary(
+         name = tool_name,
+         copts = tf_copts(),
+-        linkopts = if_not_windows(["-lm", "-Wl,-ldl"]) + cc_linkopts,
++        linkopts = if_not_windows(["-lm","-lrt", "-Wl,-ldl"]) + cc_linkopts,
+         linkstatic = 1,  # Faster to link this one-time-use binary dynamically
+         visibility = [clean_dep("//tensorflow:internal")],
+         deps = ([
+diff --git a/tensorflow/tools/pip_package/build_pip_package.sh b/tensorflow/tools/pip_package/build_pip_package.sh
+index 439b542..eb8b319 100755
+--- a/tensorflow/tools/pip_package/build_pip_package.sh
++++ b/tensorflow/tools/pip_package/build_pip_package.sh
+@@ -138,6 +138,7 @@ function prepare_src() {
+   cp tensorflow/tools/pip_package/MANIFEST.in ${TMPDIR}
+   cp tensorflow/tools/pip_package/README ${TMPDIR}
+   cp tensorflow/tools/pip_package/setup.py ${TMPDIR}
++  touch ${TMPDIR}/stub.cc
+ }
+ 
+ function build_wheel() {
+diff --git a/tensorflow/tools/pip_package/setup.py b/tensorflow/tools/pip_package/setup.py
+index 28f31b2..f989ce3 100644
+--- a/tensorflow/tools/pip_package/setup.py
++++ b/tensorflow/tools/pip_package/setup.py
+@@ -34,7 +34,7 @@ import os
+ import re
+ import sys
+ 
+-from setuptools import Command
++from setuptools import Command, Extension
+ from setuptools import find_packages
+ from setuptools import setup
+ from setuptools.command.install import install as InstallCommandBase
+@@ -264,6 +264,7 @@ setup(
+             EXTENSION_NAME,
+         ] + matches,
+     },
++    ext_modules=[Extension('_foo', ['stub.cc'])],
+     zip_safe=False,
+     distclass=BinaryDistribution,
+     cmdclass={

@@ -165,6 +165,8 @@ echo "      clone git repo.....       	  "
 echo "####################################"
 #git clone --branch=r1.13 --depth=1 https://github.com/tensorflow/tensorflow.git .
 git clone --branch=$TF_GIT_BRANCH --depth=1 https://github.com/tensorflow/tensorflow.git .
+echo "Applying manylinux patch"
+patch -p1 < $BUILD_TOOLS_DIR/manylinux-$TF_GIT_BRANCH.patch
 ###########################
 ### TODO NO GPU support yet
 ###########################
@@ -243,18 +245,19 @@ else
             else
                 GIT_TAG="$TF_FILE_NAME-${TF_GIT_BRANCH}-cpu-$(date +%Y-%m-%d_%H%M%S)"
             fi
+            env_check GIT_TAG
         else
-            env_check $GIT_TAG
+            env_check GIT_TAG
         fi
         if [[ $GIT_RELEASE_NOTES = "" ]]; then
-        	RELEASE_NOTES=$(python $BUILD_TOOLS_DIR/utils.py /workspace/bins/build_info.json) 
+        	RELEASE_NOTES="$(python $BUILD_TOOLS_DIR/utils.py /workspace/bins/build_info.json)"
         else
-            RELEASE_NOTES=$GIT_RELEASE_NOTES
+            RELEASE_NOTES="${GIT_RELEASE_NOTES}"
         fi
 		GIT_TOKEN="${GIT_TOKEN}"
-		RELEASE_FILES="$PIP_RELEASE_FOLDER/${BINARY_FILE} /workspace/bins/build_info.yaml /workspace/bins/build_info.json /usr/local/bin/bazel"
+		RELEASE_FILES="$PIP_RELEASE_FOLDER/${BINARY_FILE} /workspace/bins/build_info.yaml /workspace/bins/build_info.json /opt/app-root/output/bazel"
 		env_check RELEASE_FILES
-        env_check $RELEASE_NOTES
+        env_check RELEASE_NOTES
 		git clone $GIT_RELEASE_REPO upload-repo
 		ls -l
 		cd upload-repo

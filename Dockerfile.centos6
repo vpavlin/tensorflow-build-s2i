@@ -17,7 +17,7 @@ ARG BAZEL_VERSION=0.21.0
 ARG DEV_TOOLSET_VERSION=7
 ARG PYTHON_VERSION=3.6
 # https://github.com/tensorflow/tensorflow/blob/master/tensorflow/tools/ci_build/install/install_pip_packages.sh
-ARG PIP_LIST="wheel==0.31.1 setuptools==39.1.0 six==1.12.0 absl-py protobuf==3.6.1 enum34 futures>=0.17.1 mock numpy==1.14.5 pixiedust pillow pyaml keras_applications==1.0.8"
+ARG PIP_LIST="wheel==0.31.1 setuptools==39.1.0 six==1.12.0 absl-py protobuf==3.6.1 enum34 futures>=0.17.1 mock numpy pixiedust pillow pyaml keras_applications==1.0.8"
 
 ENV BAZEL_VERSION=$BAZEL_VERSION
 ENV DEV_TOOLSET_VERSION=$DEV_TOOLSET_VERSION
@@ -106,15 +106,19 @@ RUN wget https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini 
     && mv /tmp/tini /usr/local/bin/tini \
     && chmod +x /usr/local/bin/tini
 
-
+# Building Bazel from scratch...ln: creating symbolic link `/tmp/bazel_MNfSO5Ln/embedded_tools/tools/jdk/BUILD.pkg': Permission denied
+# ERROR: /workspace/tensorflow/core/kernels/BUILD:3206:1: C++ compilation of rule '//tensorflow/core/kernels:reduction_ops' failed (Exit 1): gcc failed: error executing command
 RUN chown -R 1001:1001 /opt/app-root  \ 
     && chgrp -R root /opt/app-root  \
     && chmod -R ug+rwx /opt/app-root \
     && cd /opt/app-root/ \
     && chmod a+rw /etc/passwd \
 	&& wget -q https://github.com/bazelbuild/bazel/releases/download/$BAZEL_VERSION/bazel-$BAZEL_VERSION-dist.zip \
-	&& chmod a+x bazel*.zip \
-	&& unzip bazel*.zip
+    && chmod a+x bazel*.zip \
+	&& unzip bazel*.zip \
+    && if [ "$BAZEL_VERSION" = "0.24.1" ] ; then mkdir -p /opt/app-root/output/ && cd /opt/app-root/output/ ; fi \
+    && if [ "$BAZEL_VERSION" = "0.24.1" ] ; then wget -q https://github.com/sub-mod/bazel-builds/releases/download/0.24.1/bazel-0.24.1 && mv bazel-0.24.1 bazel && chmod a+x bazel; fi
+
 
 # SHELL [ "/usr/bin/scl", "enable", "devtoolset-7" ]
 # RUN gcc -v

@@ -158,7 +158,7 @@
         {
             "name": "PIP_LIST",
             "description": "Version of dependencies to be installed via pip",
-            "value": "wheel==0.31.1 setuptools==39.1.0 six==1.12.0 absl-py protobuf==3.6.1 enum34 futures>=0.17.1 mock numpy==1.14.5 pixiedust pillow pyaml keras_applications==1.0.8",
+            "value": "wheel==0.31.1 setuptools==39.1.0 six==1.12.0 absl-py protobuf==3.6.1 enum34 futures mock numpy pixiedust pillow pyaml keras_applications==1.0.8 keras_preprocessing==1.0.5 tf-estimator-nightly",
             "required": true
         },
         {

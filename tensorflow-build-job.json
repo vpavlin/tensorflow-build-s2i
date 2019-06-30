@@ -195,6 +195,10 @@
                                     {
                                         "name": "GIT_RELEASE_NOTES",
                                         "value": "${GIT_RELEASE_NOTES}"
+                                    },
+                                    {
+                                        "name": "EXTRA_BAZEL_ARGS",
+                                        "value": "${EXTRA_BAZEL_ARGS}"
                                     }
                                 ],
                                 "name": "${APPLICATION_NAME}",
@@ -235,7 +239,7 @@
         {
             "name": "CUSTOM_BUILD",
             "description": "Set to custom BUILD command",
-            "value": "bazel build --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.2  --cxxopt='-D_GLIBCXX_USE_CXX11_ABI=0' --local_resources 2048,2.0,1.0 --verbose_failures //tensorflow/tools/pip_package:build_pip_package",
+            "value": "bazel build -c opt --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.2  --cxxopt='-D_GLIBCXX_USE_CXX11_ABI=0' --local_resources 2048,2.0,1.0 --verbose_failures //tensorflow/tools/pip_package:build_pip_package",
             "required": false
         },
         {
@@ -518,6 +522,12 @@
             "name": "GIT_RELEASE_NOTES",
             "description": "GIT_RELEASE_NOTES",
             "value": "",
+            "required": false
+        },
+        {
+            "name": "EXTRA_BAZEL_ARGS",
+            "description": "EXTRA_BAZEL_ARGS",
+            "value": "--host_javabase=@local_jdk//:jdk",
             "required": false
         }
     ]
