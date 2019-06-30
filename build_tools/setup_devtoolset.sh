@@ -21,7 +21,13 @@ if [ "$DEV_TOOLSET_VERSION" = "7" ] ; then
 		export LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib64:/opt/rh/devtoolset-7/root/usr/lib:/opt/rh/devtoolset-7/root/usr/lib64/dyninst:/opt/rh/devtoolset-7/root/usr/lib/dyninst:/opt/rh/devtoolset-7/root/usr/lib64:/opt/rh/devtoolset-7/root/usr/lib:$LD_LIBRARY_PATH &&
 		export PATH=/opt/rh/devtoolset-7/root/usr/bin:$PATH &&
 		export PYTHONPATH=/opt/rh/devtoolset-7/root/usr/lib64/python2.6/site-packages:/opt/rh/devtoolset-7/root/usr/lib/python2.6/site-packages:$PYTHONPATH &&
-		export PERL5LIB=/opt/rh/devtoolset-7/root//usr/lib64/perl5/vendor_perl:/opt/rh/devtoolset-7/root/usr/lib/perl5:/opt/rh/devtoolset-7/root//usr/share/perl5/vendor_perl
+		export PERL5LIB=/opt/rh/devtoolset-7/root//usr/lib64/perl5/vendor_perl:/opt/rh/devtoolset-7/root/usr/lib/perl5:/opt/rh/devtoolset-7/root//usr/share/perl5/vendor_perl &&
+		rm -fr /usr/bin/gcc &&
+		rm -fr /usr/bin/g++ &&
+		rm -fr /usr/bin/ld &&
+		ln -s /opt/rh/devtoolset-$DEV_TOOLSET_VERSION/root/usr/bin/gcc /usr/bin/gcc &&
+		ln -s /opt/rh/devtoolset-$DEV_TOOLSET_VERSION/root/usr/bin/g++ /usr/bin/g++ &&
+		ln -s /opt/rh/devtoolset-$DEV_TOOLSET_VERSION/root/usr/bin/ld /usr/bin/ld;
 	fi
 fi
 

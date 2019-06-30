@@ -109,17 +109,9 @@ RUN wget https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini 
 
 RUN chown -R 1001:1001 /opt/app-root  \ 
     && chgrp -R root /opt/app-root  \
-    && chmod -R ug+rwx /opt/app-root  \
-    && usermod -g root $NB_USER \
-    && mkdir -p /workspace \
-    && chown $NB_UID:root /workspace \
-    && chmod 1777 /workspace \
-    && mkdir -p /home/$NB_USER \
-    && chown -R $NB_UID:root /home/$NB_USER \
-    && chmod g+rwX,o+rX -R /home/$NB_USER
-
-
-RUN cd /opt/app-root/ \
+    && chmod -R ug+rwx /opt/app-root \
+    && cd /opt/app-root/ \
+    && chmod a+rw /etc/passwd \
 	&& wget -q https://github.com/bazelbuild/bazel/releases/download/$BAZEL_VERSION/bazel-$BAZEL_VERSION-dist.zip \
 	&& chmod a+x bazel*.zip \
 	&& unzip bazel*.zip
@@ -130,16 +122,23 @@ RUN cd /opt/app-root/ \
 # RUN python -V 
 
 # don't use container-entrypoint before running user application
+# use /entrypoint
 COPY ./s2i/bin/ /usr/libexec/s2i
 ADD entrypoint /entrypoint
 RUN chmod +x /entrypoint
 ADD build_tools /build_tools
 
+# need to remove /usr/bin/gcc
+# only possible to do that here and not in run script
+RUN source /build_tools/setup_devtoolset.sh \
+    && source /build_tools/setup_python.sh
+
 # Install pip and dependencies for tensorflow build.
-RUN if [ "$PYTHON_VERSION" = "3.6" ] ; then source scl_source enable rh-python36 ; fi \
-    && python -V \
+# if [ "$PYTHON_VERSION" = "3.6" ] ; then source scl_source enable rh-python36 ; fi \
+RUN python -V \
     && gcc -v \
     && python /opt/app-root/get-pip.py \
+    && source /build_tools/setup_pip.sh \
     && which pip \
     && pip -V \
     && echo $LD_LIBRARY_PATH \
@@ -147,7 +146,14 @@ RUN if [ "$PYTHON_VERSION" = "3.6" ] ; then source scl_source enable rh-python36
     && cd /opt/app-root/ \
     && [[ -z "$PIP_LIST" ]] && echo "PIP_LIST is Empty" || for x in $PIP_LIST; do echo "$x">> requirements.txt;  done \
     && if [ -f requirements.txt ]; then cat requirements.txt ; else echo "requirements.txt doesn't exist"; fi \
-    && if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt ; else echo "requirements.txt doesn't exist"; fi
+    && if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt ; else echo "requirements.txt doesn't exist"; fi \
+    && usermod -g root $NB_USER \
+    && mkdir -p /workspace \
+    && chown $NB_UID:root /workspace \
+    && chmod 1777 /workspace \
+    && mkdir -p /home/$NB_USER \
+    && chown -R $NB_UID:root /home/$NB_USER \
+    && chmod g+rwX,o+rX -R /home/$NB_USER
 
 # NO CLEANUP
 # Donot add below commands

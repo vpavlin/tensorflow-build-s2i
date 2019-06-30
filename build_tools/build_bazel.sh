@@ -10,5 +10,7 @@ echo $FULL_JAVA_HOME
 export JAVA_HOME=$FULL_JAVA_HOME
 cd /opt/app-root/
 ./compile.sh
-cp /opt/app-root/output/bazel /usr/local/bin/
+# put /opt/app-root/output/bazel in path
+export PATH=/opt/app-root/output/:$PATH
+# cp /opt/app-root/output/bazel /usr/local/bin/
 bazel version

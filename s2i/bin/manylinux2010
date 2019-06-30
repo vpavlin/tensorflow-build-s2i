@@ -94,6 +94,10 @@ TEST_CMD="import tensorflow as tf ; a = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.
 BUILD_TOOLS_DIR="/build_tools"
 env_check BUILD_TOOLS_DIR
 
+# The PATH is not set properly for devtoolset-gcc and python3.6
+# PATH set by s2i /opt/app-root/src/bin:/opt/app-root/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# PATH set by us  /usr/local/bin:/opt/app-root/src/bin:/opt/app-root/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/default/.local/bin
+# so we need to set the PATH again
 source $BUILD_TOOLS_DIR/setup_devtoolset.sh
 source $BUILD_TOOLS_DIR/setup_python.sh
 source $BUILD_TOOLS_DIR/setup_pip.sh
