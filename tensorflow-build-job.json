@@ -203,6 +203,10 @@
                                     {
                                         "name": "DEV_TOOLSET_VERSION",
                                         "value": "${DEV_TOOLSET_VERSION}"
+                                    },
+                                    {
+                                        "name": "LOCAL_BUILD",
+                                        "value": "${LOCAL_BUILD}"
                                     }
                                 ],
                                 "name": "${APPLICATION_NAME}",
@@ -538,6 +542,12 @@
             "name": "DEV_TOOLSET_VERSION",
             "description": "DEV_TOOLSET_VERSION",
             "value": "7",
+            "required": true
+        },
+        {
+            "name": "LOCAL_BUILD",
+            "description": "LOCAL_BUILD",
+            "value": "n",
             "required": true
         }
     ]

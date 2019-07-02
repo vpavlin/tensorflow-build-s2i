@@ -80,11 +80,14 @@ env_check PYTHON_VERSION MY_EXIT_1
 env_check HOST_ON_HTTP_SERVER MY_EXIT_1
 env_check TEST_WHEEL_FILE MY_EXIT_1
 env_check GIT_RELEASE_REPO MY_EXIT_1
+env_check LOCAL_BUILD MY_EXIT_1
 env_check HOME
 
-OAUTH_SCOPE=$(check_oauth_scope)
-echo "OAUTH_SCOPE uses GIT_TOKEN"
-env_check OAUTH_SCOPE
+if [[ $LOCAL_BUILD = "n" ]]; then
+	OAUTH_SCOPE=$(check_oauth_scope)
+	echo "OAUTH_SCOPE uses GIT_TOKEN"
+	env_check OAUTH_SCOPE
+fi
 echo "============================================"
 
 TEST_CMD="import tensorflow as tf ; a = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], shape=[2, 3], name='a') ; \
@@ -218,9 +221,11 @@ else
 	echo "####################################"
 	if ls -l  bazel-bin/tensorflow/tools/pip_package/build_pip_package; then
 		## bazel build is success so building the wheel file...
+		PIP_RELEASE_FOLDER_TMP="/tmp/build_pip_package"
 		PIP_RELEASE_FOLDER="/tmp/build_pip_package-$(date +%Y-%m-%d_%H%M%S)"
 		env_check PIP_RELEASE_FOLDER
 		mkdir -p $PIP_RELEASE_FOLDER
+		mkdir -p $PIP_RELEASE_FOLDER_TMP
 		bazel-bin/tensorflow/tools/pip_package/build_pip_package $PIP_RELEASE_FOLDER ;
 
 		if [[ $TEST_WHEEL_FILE = "y" ]]
@@ -234,6 +239,8 @@ else
 		echo "      Releasing...			      "
 		echo "####################################"
 		cd $PIP_RELEASE_FOLDER
+		yes | cp -rf  *.whl $PIP_RELEASE_FOLDER_TMP/
+		ls -l $PIP_RELEASE_FOLDER_TMP/
 		pip install *.whl --user
 		BINARY_FILE=$(basename `ls tensorflow*.whl`)
 		env_check BINARY_FILE
@@ -261,7 +268,9 @@ else
 		git clone $GIT_RELEASE_REPO upload-repo
 		ls -l
 		cd upload-repo
-		source $BUILD_TOOLS_DIR/release.sh "${GIT_TAG}" "${TENSORFLOW_BUILD_DIR_NAME}" "${RELEASE_NOTES}" "${GIT_TOKEN}" "${RELEASE_FILES}"
+		if [[ $LOCAL_BUILD = "n" ]]; then
+			source $BUILD_TOOLS_DIR/release.sh "${GIT_TAG}" "${TENSORFLOW_BUILD_DIR_NAME}" "${RELEASE_NOTES}" "${GIT_TOKEN}" "${RELEASE_FILES}"
+		fi
 	fi #end wheel
 fi # end build
 if ls -l  /workspace/build.log; then

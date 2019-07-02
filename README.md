@@ -67,8 +67,26 @@ Following should be left blank for a build job.
 * `BUILD_OPTS`:=
 
 
+## Usage with docker or podman
 
-## Usage
+### 1. create the build Image
+```
+docker build --build-arg BAZEL_VERSION=0.24.1 --build-arg DEV_TOOLSET_VERSION=8 \
+--build-arg PIP_LIST="wheel==0.31.1 setuptools==39.1.0 six==1.12.0 absl-py protobuf==3.6.1 enum34 futures mock numpy pixiedust pillow pyaml keras_applications==1.0.8 keras_preprocessing==1.0.5 tf-estimator-nightly"
+--build-arg PYTHON_VERSION=3.6 -t submod/manylinux_tf_environment -f Dockerfile.centos6 .
+```
+
+### 2. edit the build env file
+```
+vim .tf_build_env
+```
+
+### 3. start the bazel build in the build Image container
+```
+docker run -it -u 0 --env-file ./.tf_build_env -v $(pwd):/tmp/build_pip_package:Z submod/manylinux_tf_environment /usr/libexec/s2i/manylinux2010
+```
+
+## Usage with Openshift
 
 ### To create a wheel file
 
