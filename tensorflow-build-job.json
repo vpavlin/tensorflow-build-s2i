@@ -199,6 +199,10 @@
                                     {
                                         "name": "EXTRA_BAZEL_ARGS",
                                         "value": "${EXTRA_BAZEL_ARGS}"
+                                    },
+                                    {
+                                        "name": "DEV_TOOLSET_VERSION",
+                                        "value": "${DEV_TOOLSET_VERSION}"
                                     }
                                 ],
                                 "name": "${APPLICATION_NAME}",
@@ -529,6 +533,12 @@
             "description": "EXTRA_BAZEL_ARGS",
             "value": "--host_javabase=@local_jdk//:jdk",
             "required": false
+        },
+        {
+            "name": "DEV_TOOLSET_VERSION",
+            "description": "DEV_TOOLSET_VERSION",
+            "value": "7",
+            "required": true
         }
     ]
 }
