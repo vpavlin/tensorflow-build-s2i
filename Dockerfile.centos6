@@ -13,7 +13,7 @@ LABEL io.k8s.description="S2I builder for Tensorflow binaries." \
       io.openshift.s2i.scripts-url="image:///usr/libexec/s2i"
 
 # Following should be passed as build-args
-ARG BAZEL_VERSION=0.21.0
+ARG BAZEL_VERSION=0.18.0
 ARG DEV_TOOLSET_VERSION=7
 ARG PYTHON_VERSION=3.6
 # https://github.com/tensorflow/tensorflow/blob/master/tensorflow/tools/ci_build/install/install_pip_packages.sh
@@ -134,12 +134,14 @@ ADD build_tools /build_tools
 
 # need to remove /usr/bin/gcc
 # only possible to do that here and not in run script
-RUN source /build_tools/setup_devtoolset.sh \
-    && source /build_tools/setup_python.sh
+# RUN source /build_tools/setup_devtoolset.sh \
+#     && source /build_tools/setup_python.sh
 
 # Install pip and dependencies for tensorflow build.
 # if [ "$PYTHON_VERSION" = "3.6" ] ; then source scl_source enable rh-python36 ; fi \
-RUN python -V \
+RUN source /build_tools/setup_devtoolset.sh \
+    && source /build_tools/setup_python.sh \
+    && python -V \
     && gcc -v \
     && python /opt/app-root/get-pip.py \
     && source /build_tools/setup_pip.sh \

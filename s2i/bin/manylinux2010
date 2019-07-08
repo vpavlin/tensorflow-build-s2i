@@ -238,7 +238,8 @@ else
 		echo "####################################"
 		echo "      Releasing...			      "
 		echo "####################################"
-		cd $PIP_RELEASE_FOLDER
+		cd $PIP_RELEASE_FOLDER;
+		ls -l ;
 		yes | cp -rf  *.whl $PIP_RELEASE_FOLDER_TMP/
 		ls -l $PIP_RELEASE_FOLDER_TMP/
 		pip install *.whl --user

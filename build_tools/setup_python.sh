@@ -7,6 +7,7 @@ echo "Setup Python after devtoolset gcc..."
 major=$(cat /etc/centos-release | tr -dc '0-9.'|cut -d \. -f1)
 minor=$(cat /etc/centos-release | tr -dc '0-9.'|cut -d \. -f2)
 OSVER=$(cat /etc/redhat-release | cut -d' ' -f1 |  awk '{print tolower($0)}')
+echo "PYTHON_VERSION = "$PYTHON_VERSION
 echo "OSVER = "$OSVER
 OS_VERSION="$OSVER$major"
 echo "OS_VERSION = "$OS_VERSION
