@@ -13,7 +13,71 @@
             "kind": "ImageStream",
             "apiVersion": "v1",
             "metadata": {
-                "name": "cuda",
+                "name": "cuda-${APPLICATION_NAME_1}",
+                "labels": {
+                    "appTypes": "cuda-build-chain",
+                    "appName": "${APPLICATION_NAME}"
+                }
+            },
+            "spec": {
+                "lookupPolicy": {
+                    "local": true
+                }
+            }
+        },
+        {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "cuda-${APPLICATION_NAME_2}",
+                "labels": {
+                    "appTypes": "cuda-build-chain",
+                    "appName": "${APPLICATION_NAME}"
+                }
+            },
+            "spec": {
+                "lookupPolicy": {
+                    "local": true
+                }
+            }
+        },
+        {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "cuda-${APPLICATION_NAME_3}",
+                "labels": {
+                    "appTypes": "cuda-build-chain",
+                    "appName": "${APPLICATION_NAME}"
+                }
+            },
+            "spec": {
+                "lookupPolicy": {
+                    "local": true
+                }
+            }
+        },
+        {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "cuda-${APPLICATION_NAME_4}",
+                "labels": {
+                    "appTypes": "cuda-build-chain",
+                    "appName": "${APPLICATION_NAME}"
+                }
+            },
+            "spec": {
+                "lookupPolicy": {
+                    "local": true
+                }
+            }
+        },
+        {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "cuda-${APPLICATION_NAME_5}",
                 "labels": {
                     "appTypes": "cuda-build-chain",
                     "appName": "${APPLICATION_NAME}"
@@ -94,7 +158,7 @@
                 "output": {
                     "to": {
                         "kind": "ImageStreamTag",
-                        "name": "cuda:${APPLICATION_NAME_1}"
+                        "name": "cuda-${APPLICATION_NAME_1}:latest"
                     }
                 },
                 "resources": {
@@ -148,14 +212,14 @@
                       "noCache": true,
                         "from": {
                             "kind": "ImageStreamTag",
-                            "name": "cuda:${APPLICATION_NAME_1}"
+                            "name": "cuda-${APPLICATION_NAME_1}:latest"
                         }
                     }
                 },
                 "output": {
                     "to": {
                         "kind": "ImageStreamTag",
-                        "name": "cuda:${APPLICATION_NAME_2}"
+                        "name": "cuda-${APPLICATION_NAME_2}:latest"
                     }
                 },
                 "resources": {
@@ -209,14 +273,14 @@
                       "noCache": true,
                         "from": {
                             "kind": "ImageStreamTag",
-                            "name": "cuda:${APPLICATION_NAME_2}"
+                            "name": "cuda-${APPLICATION_NAME_2}:latest"
                         }
                     }
                 },
                 "output": {
                     "to": {
                         "kind": "ImageStreamTag",
-                        "name": "cuda:${APPLICATION_NAME_3}"
+                        "name": "cuda-${APPLICATION_NAME_3}:latest"
                     }
                 },
                 "resources": {
@@ -270,14 +334,14 @@
                       "noCache": true,
                         "from": {
                             "kind": "ImageStreamTag",
-                            "name": "cuda:${APPLICATION_NAME_2}"
+                            "name": "cuda-${APPLICATION_NAME_2}:latest"
                         }
                     }
                 },
                 "output": {
                     "to": {
                         "kind": "ImageStreamTag",
-                        "name": "cuda:${APPLICATION_NAME_4}"
+                        "name": "cuda-${APPLICATION_NAME_4}:latest"
                     }
                 },
                 "resources": {
@@ -331,14 +395,14 @@
                       "noCache": true,
                         "from": {
                             "kind": "ImageStreamTag",
-                            "name": "cuda:${APPLICATION_NAME_4}"
+                            "name": "cuda-${APPLICATION_NAME_4}:latest"
                         }
                     }
                 },
                 "output": {
                     "to": {
                         "kind": "ImageStreamTag",
-                        "name": "cuda:${APPLICATION_NAME_5}"
+                        "name": "cuda-${APPLICATION_NAME_5}:latest"
                     }
                 },
                 "resources": {
@@ -393,7 +457,7 @@
                       "dockerfilePath": "${S2I_PYTHON_DOCKER_FILE_PATH}",
                         "from": {
                             "kind": "ImageStreamTag",
-                            "name": "cuda:${APPLICATION_NAME_5}"
+                            "name": "cuda-${APPLICATION_NAME_5}:latest"
                         }
                     }
                 },
